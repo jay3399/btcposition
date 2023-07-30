@@ -38,6 +38,13 @@
   </div>
 </div>
 
+<div id="votingResults" class="container">
+  <h3>투표 결과</h3>
+  <p>롱 포지션: <span id="longVotes">0</span> 표</p>
+  <p>숏 포지션: <span id="shortVotes">0</span> 표</p>
+</div>
+
+
 <script>
   function vote(option) {
     const url = option === 'long' ? '/position/vote/long' : '/position/vote/short';
@@ -55,12 +62,37 @@
       if (!response.ok) {
         throw new Error('서버 오류가 발생했습니다.');
       }
-      console.log(`${option} 포지션에 투표되었습니다.`);
+      // console.log(`${option} 포지션에 투표되었습니다.`);
+      return response.json();
     })
+    .then(
+        data => {
+          document.getElementById('longVotes').textContent = data.longVotes;
+          document.getElementById('shortVotes').textContent = data.shortVotes;
+        }
+    )
     .catch(error => {
       console.error(error);
     });
   }
+
+  // 페이지 로드시 초기 투표겨과를 가져와서 페이지에 표시
+  fetch('/position/results', {
+    method: 'GET',
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('서버 오류가 발생했습니다.');
+    }
+    return response.json();
+  })
+  .then(data => {
+    document.getElementById('longVotes').textContent = data.longVotes;
+    document.getElementById('shortVotes').textContent = data.shortVotes;
+  })
+  .catch(error => {
+    console.error(error);
+  });
 </script>
 </body>
 </html>
