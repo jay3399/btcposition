@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>비트코인 롱/숏 투표</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 30px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .option {
+      margin: 0 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<h1>비트코인 롱/숏 투표</h1>
+<div class="container">
+  <div class="option">
+    <h3>롱 포지션</h3>
+    <button onclick="vote('long')">투표하기</button>
+  </div>
+  <div class="option">
+    <h3>숏 포지션</h3>
+    <button onclick="vote('short')">투표하기</button>
+  </div>
+</div>
+
+<script>
+  function vote(option) {
+    const url = option === 'long' ? '/position/vote/long' : '/position/vote/short';
+
+    // Fetch API를 사용하여 서버로 투표 옵션 전송
+    fetch(url, {
+      method: 'POST',
+      // 필요에 따라 요청 헤더에 추가적인 정보를 넣을 수 있습니다.
+      // 예를 들면, 토큰이나 인증정보 등이 포함될 수 있습니다.
+      // headers: {
+      //   'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+      // },
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('서버 오류가 발생했습니다.');
+      }
+      console.log(`${option} 포지션에 투표되었습니다.`);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }
+</script>
+</body>
+</html>
