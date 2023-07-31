@@ -1,22 +1,106 @@
 package com.example.btcposition.controller;
 
+import com.example.JwtResponse;
+import com.example.JwtTokenUtil;
+import com.example.btcposition.domain.Vote;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.example.btcposition.service.voteService;
+
 
 @Controller
+@RequiredArgsConstructor
 public class mainController {
+
+  private final voteService voteService;
 
 
   @PostMapping("/position/vote/{value}")
   @ResponseBody
   public boolean getVote(@PathVariable String value) {
 
-    System.out.println("value = " + value);
+    Vote vote = voteService.getVote(value);
+
+    if (vote == null) {
+      vote = new Vote(value, 1);
+    } else {
+      vote.setCount(vote.getCount() + 1);
+    }
+
+    System.out.println("vote = " + vote.getCount());
+
+
+    voteService.saveVote(vote);
 
     return true;
+  }
+
+  @PostMapping("/position/vote/{value}")
+  @ResponseBody
+  public ResponseEntity<?> getVoteWithJWT(@PathVariable String value , HttpServletRequest request) {
+
+    String token = request.getHeader("Authorization");
+    String usernameFromToken = JwtTokenUtil.getUsernameFromToken(token);
+
+    if (JwtTokenUtil.isVoted(token)) {
+      System.out.println("이미투표하였습니다");
+      return ResponseEntity.badRequest().body("이미투표한사용자입니다");
+    }
+
+    String jwtToken = JwtTokenUtil.generateToken(usernameFromToken, true);
+
+    return ResponseEntity.ok(new JwtResponse(jwtToken, usernameFromToken, true));
+  }
+
+//  @PostMapping("/position/vote/{value}")
+//  @ResponseBody
+//  public ResponseEntity<?> getVoteWithRedis(@PathVariable String value , HttpServletRequest request) {
+//
+//    String token = request.getHeader("Authorization");
+//    String username = jwtTokenUtil.getUsernameFromToken(token);
+//
+//    // 사용자의 투표 여부를 확인
+//    String voted = redisTemplate.opsForValue().get("voted:" + username);
+//    if (voted != null && voted.equals("true")) {
+//      System.out.println("이미 투표한 사용자입니다.");
+//      return false;
+//    }
+//
+//    // Redis에 투표한 사용자 정보 저장 (다음날 자정까지 유지)
+//    LocalDateTime tomorrowMidnight = LocalDateTime.now().plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+//    Duration duration = Duration.between(LocalDateTime.now(), tomorrowMidnight);
+//    long secondsUntilTomorrowMidnight = duration.getSeconds();
+//    redisTemplate.opsForValue().set("voted:" + username, "true", secondsUntilTomorrowMidnight, TimeUnit.SECONDS);
+//
+//    Vote vote = voteService.getVote(value);
+//
+//    if (vote == null) {
+//      vote = new Vote(value, 1);
+//    } else {
+//      vote.setCount(vote.getCount() + 1);
+//    }
+//
+//    voteService.saveVote(vote);
+//
+//    // JWT 토큰 생성하여 클라이언트에 전달
+//    String jwtToken = jwtTokenUtil.generateToken(username, secondsUntilTomorrowMidnight);
+//    return new ResponseEntity<>(new JwtResponse(jwtToken), HttpStatus.OK);
+//
+//
+//  }
+
+  @GetMapping("/position/results")
+  @ResponseBody
+  public ResponseEntity<List<Vote>> getResults() {
+    List<Vote> voteResults = voteService.findAll();
+    return ResponseEntity.ok(voteResults);
   }
 
 

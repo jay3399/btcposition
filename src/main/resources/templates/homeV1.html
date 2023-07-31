@@ -29,7 +29,7 @@
       margin-top: 10px;
     }
     .progress-bar {
-      width: 200px; /* 게이지 바의 너비 설정 */
+      flex: 1;
       height: 20px;
       background-color: #f0f0f0;
       border-radius: 10px;
@@ -63,20 +63,25 @@
 </div>
 
 <div id="votingResults" class="container">
-<h3>투표 결과</h3>
-<div class="progress-container">
-  <div class="progress-bar">
-    <div id="longProgress" class="progress"></div>
+  <h3>투표 결과</h3>
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div id="longProgress" class="progress"></div>
+    </div>
+    <div class="progress-text">
+      <span id="longVotes">0</span> 표
+      <span id="longVotesRatio"></span>%
+    </div>
   </div>
-  <div class="progress-text">
-    롱 포지션: <span id="longVotes">0</span> 표 (<span id="longVotesRatio"></span>%)
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div id="shortProgress" class="progress"></div>
+    </div>
+    <div class="progress-text">
+      <span id="shortVotes">0</span> 표
+      <span id="shortVotesRatio"></span>%
+    </div>
   </div>
-</div>
-<div class="progress-container">
-  <div class="progress-text">
-    숏 포지션: <span id="shortVotes">0</span> 표 (<span id="shortVotesRatio"></span>%)
-  </div>
-</div>
 </div>
 
 
@@ -97,58 +102,40 @@
     .then(data => {
           // 받아온 JSON 데이터를 업데이트
           // 받아온 JSON 데이터를 투표 수(count)를 기준으로 내림차순으로 정렬
-      data.sort((a, b) => b.count - a.count);
+          data.sort((a, b) => b.count - a.count);
 
-      let totalVotes = data.reduce((total, result) => total + result.count, 0);
-      for (let result of data) {
-        if (result.value === 'long') {
-          document.getElementById('longVotes').textContent = result.count;
-          document.getElementById('longProgress').style.width = (result.count / totalVotes * 100) + '%';
-          document.getElementById('longVotesRatio').textContent = (result.count / totalVotes * 100).toFixed(2);
-        } else if (result.value === 'short') {
-          document.getElementById('shortVotes').textContent = result.count;
-          document.getElementById('shortVotesRatio').textContent = (result.count / totalVotes * 100).toFixed(2);
-
+          let totalVotes = data.reduce((total, result) => total + result.count, 0);
+          for (let result of data) {
+            if (result.value === 'long') {
+              document.getElementById('longVotes').textContent = result.count;
+              document.getElementById('longProgress').style.width = (result.count / totalVotes * 100) + '%';
+            } else if (result.value === 'short') {
+              document.getElementById('shortVotes').textContent = result.count;
+              document.getElementById('shortProgress').style.width = (result.count / totalVotes * 100) + '%';
             }
           }
-        }
 
+          // 비율로 계산하여 표시
+          let longVotesRatio = (data.find(result => result.value === 'long').count / totalVotes * 100).toFixed(2);
+          let shortVotesRatio = (data.find(result => result.value === 'short').count / totalVotes * 100).toFixed(2);
+
+          document.getElementById('longVotesRatio').textContent = longVotesRatio
+          document.getElementById('shortVotesRatio').textContent = shortVotesRatio
+        }
     )
     .catch(error => {
       console.error(error);
     });
   }
+
+
   function vote(option) {
-
-    if (localStorage.getItem("voted")) {
-      console.log('이미투표한 사용자입니다');
-      return;
-    }
-
-
     const url = option === 'long' ? '/position/vote/long' : '/position/vote/short';
 
     // Fetch API를 사용하여 서버로 투표 옵션 전송
     fetch(url, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
-      },
     })
-    .then(
-        response => {
-          if (!response.ok) {
-            throw new Error('서버오류발생')
-          }
-          return response.json();
-        }
-    )
-    .then(
-        data =>{
-          localStorage.setItem('voted', 'true');
-          localStorage.setItem('jwtToken' , data.token)
-        }
-    )
     .catch(error => {
       console.error(error);
     })
@@ -158,12 +145,7 @@
         }
     )
   }
-
-  if (localStorage.getItem('voted')) {
-    console.log('이미 투표한 사용자입니다')
-  }
-
-  updateVotes();
+  updateVotes()
 </script>
 </body>
 </html>
