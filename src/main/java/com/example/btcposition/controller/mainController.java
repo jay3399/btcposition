@@ -1,10 +1,11 @@
 package com.example.btcposition.controller;
 
-import com.example.JwtResponse;
-import com.example.JwtTokenUtil;
+import com.example.btcposition.JwtResponse;
+import com.example.btcposition.JwtTokenUtil;
 import com.example.btcposition.domain.Vote;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,43 +21,53 @@ import com.example.btcposition.service.voteService;
 public class mainController {
 
   private final voteService voteService;
+  private final JwtTokenUtil jwtTokenUtil;
 
 
-  @PostMapping("/position/vote/{value}")
-  @ResponseBody
-  public boolean getVote(@PathVariable String value) {
-
-    Vote vote = voteService.getVote(value);
-
-    if (vote == null) {
-      vote = new Vote(value, 1);
-    } else {
-      vote.setCount(vote.getCount() + 1);
-    }
-
-    System.out.println("vote = " + vote.getCount());
-
-
-    voteService.saveVote(vote);
-
-    return true;
-  }
+//  @PostMapping("/position/vote/{value}")
+//  @ResponseBody
+//  public boolean getVote(@PathVariable String value) {
+//
+//    Vote vote = voteService.getVote(value);
+//
+//    if (vote == null) {
+//      vote = new Vote(value, 1);
+//    } else {
+//      vote.setCount(vote.getCount() + 1);
+//    }
+//
+//    System.out.println("vote = " + vote.getCount());
+//
+//
+//    voteService.saveVote(vote);
+//
+//    return true;
+//  }
 
   @PostMapping("/position/vote/{value}")
   @ResponseBody
   public ResponseEntity<?> getVoteWithJWT(@PathVariable String value , HttpServletRequest request) {
 
-    String token = request.getHeader("Authorization");
-    String usernameFromToken = JwtTokenUtil.getUsernameFromToken(token);
 
-    if (JwtTokenUtil.isVoted(token)) {
+    String token = request.getHeader("Authorization");
+    String username = jwtTokenUtil.getUsernameFromToken(token);
+
+    if (jwtTokenUtil.isVoted(token)) {
       System.out.println("이미투표하였습니다");
       return ResponseEntity.badRequest().body("이미투표한사용자입니다");
     }
 
-    String jwtToken = JwtTokenUtil.generateToken(usernameFromToken, true);
+    Vote vote = voteService.getVote(value);
 
-    return ResponseEntity.ok(new JwtResponse(jwtToken, usernameFromToken, true));
+    if (vote == null){ vote = new Vote(value, 1);}
+    else{ vote.setCount(vote.getCount());}
+
+    voteService.saveVote(vote);
+
+
+    String jwtToken = jwtTokenUtil.generateToken(username, true);
+
+    return ResponseEntity.ok(new JwtResponse(jwtToken, username, true));
   }
 
 //  @PostMapping("/position/vote/{value}")
@@ -101,6 +112,26 @@ public class mainController {
   public ResponseEntity<List<Vote>> getResults() {
     List<Vote> voteResults = voteService.findAll();
     return ResponseEntity.ok(voteResults);
+  }
+
+
+  @GetMapping("/getJwtToken")
+  @ResponseBody
+  public ResponseEntity<JwtResponse> getJwtToken() {
+
+    String username = generateRandomUsername();
+    System.out.println("username = " + username);
+    String token = jwtTokenUtil.generateToken(username,false);
+    System.out.println("token = " + token);
+
+    // 객체에 Getter 없을시 , not accept 406오류.
+
+    return ResponseEntity.ok(new JwtResponse(token, username, false));
+
+  }
+
+  private String generateRandomUsername() {
+    return UUID.randomUUID().toString().replace("-", "");
   }
 
 

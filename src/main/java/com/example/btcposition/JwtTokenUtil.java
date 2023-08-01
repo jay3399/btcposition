@@ -1,4 +1,4 @@
-package com.example;
+package com.example.btcposition;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -6,7 +6,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,17 +16,24 @@ import org.springframework.stereotype.Component;
 public class JwtTokenUtil {
 
 
-  @Value("${jwt.secret}")
-  private static String secret;
+  private final String secret;
 
+  @Autowired
+  public JwtTokenUtil( @Value("${jwt.secret}") String secret) {
+    this.secret = secret;
+  }
 
-  public static String generateToken(String username, boolean voted) {
+  public String generateToken(String username, boolean voted) {
+
 
     Claims claims = Jwts.claims().setSubject(username);
     claims.put("voted", voted);
 
     Instant now = Instant.now();
     Instant instant = now.plusSeconds(EXPIRATION_TIME);
+
+    System.out.println("instant = " + instant);
+    System.out.println("now = " + now);
 
 
 //    Date now = new Date();
@@ -39,12 +48,22 @@ public class JwtTokenUtil {
 
   }
 
-  public static String getUsernameFromToken(String token) {
-    return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+  public  String getUsernameFromToken(String token) {
+
+    if (token != null && token.startsWith("Bearer ")) {
+      token = token.substring(7); // "Bearer " 접두사를 제거합니다.
+    }
+
+      return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
   }
 
 
-  public static boolean isVoted(String token) {
+  public  boolean isVoted(String token) {
+
+    if (token != null && token.startsWith("Bearer ")) {
+      token = token.substring(7); // "Bearer " 접두사를 제거합니다.
+    }
+
     return (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
         .get("voted");
   }
