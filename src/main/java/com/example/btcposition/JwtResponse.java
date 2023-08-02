@@ -2,7 +2,6 @@ package com.example.btcposition;
 
 
 import lombok.Getter;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @Getter
 public class JwtResponse {

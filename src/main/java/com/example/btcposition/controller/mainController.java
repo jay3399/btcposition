@@ -5,13 +5,16 @@ import com.example.btcposition.JwtTokenUtil;
 import com.example.btcposition.domain.Vote;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.btcposition.service.voteService;
 
@@ -50,6 +53,7 @@ public class mainController {
 
 
     String token = request.getHeader("Authorization");
+
     String username = jwtTokenUtil.getUsernameFromToken(token);
     System.out.println("username = " + username);
 
@@ -62,6 +66,11 @@ public class mainController {
 
     if (vote == null){ vote = new Vote(value, 1);}
     else{ vote.setCount(vote.getCount()+1);}
+
+
+    // if .. 사용자가 localstroge에서 jwt 값을 삭제시에는 ? -> 다시 재발급후 투표가 가능하다..
+
+
 
 
     voteService.saveVote(vote);
@@ -117,14 +126,29 @@ public class mainController {
   }
 
 
-  @GetMapping("/getJwtToken")
+  @PostMapping("/getJwtToken")
   @ResponseBody
-  public ResponseEntity<JwtResponse> getJwtToken() {
+  public ResponseEntity<JwtResponse> getJwtToken(@RequestBody Map<String ,List<Map<String , Object>>> body) {
+
+
+
 
     String username = generateRandomUsername();
     System.out.println("username = " + username);
     String token = jwtTokenUtil.generateToken(username,false);
     System.out.println("token = " + token);
+
+    List<Map<String, Object>> fingerprint = body.get("fingerprint");
+
+    List<Object> collect = fingerprint.stream().flatMap(
+        data -> data.values().stream()
+    ).collect(Collectors.toList());
+
+
+
+
+    System.out.println("fingerprint = " + fingerprint);
+    System.out.println("collect = " + collect);
 
     // 객체에 Getter 없을시 , not accept 406오류.
 

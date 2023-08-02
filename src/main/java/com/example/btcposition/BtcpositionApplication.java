@@ -7,8 +7,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -47,6 +51,11 @@ public class BtcpositionApplication {
     Instant expirationInstant = midnight.atZone(ZoneId.systemDefault()).toInstant();
     Date expirationDate = Date.from(expirationInstant);
     System.out.println("expirationDate = " + expirationDate);
+
+    List<Map<String, Object>> data = new ArrayList<>();
+
+    List<Map<String, String>> maps = Arrays.asList(Map.of("나", "조성우"), Map.of("이곳", "이디아"),
+        Map.of("상태", "피곤하다"));
 
 
 

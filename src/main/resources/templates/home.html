@@ -54,11 +54,11 @@
 <div class="container">
   <div class="option">
     <h3>롱 포지션</h3>
-    <button onclick="vote('long')">투표하기</button>
+    <button onclick="getFingerprint('long')">투표하기</button>
   </div>
   <div class="option">
     <h3>숏 포지션</h3>
-    <button onclick="vote('short')">투표하기</button>
+    <button onclick="getFingerprint('short')">투표하기</button>
   </div>
 </div>
 
@@ -79,9 +79,14 @@
 </div>
 </div>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
 <script>
 
+  function getFingerprint(option) {
+    Fingerprint2.get(function (fingerprint) {
+      vote(option, fingerprint);
+    });
+  }
 
   function updateVotes() {
     fetch('/position/results', {
@@ -113,17 +118,19 @@
     });
   }
 
-  function vote(option) {
+  function vote(option , fingerprint) {
+    console.log(fingerprint);
     if (localStorage.getItem('voted')) {
       console.log('이미 투표한 사용자입니다');
       return;
     }
-
     // 최초 사용자일 경우, 서버에서 JWT 토큰을 받아온 뒤 localStorage에 저장
-    if (!localStorage.getItem('jwtToken')) {
+    const jwtToken = localStorage.getItem("jwtToken");
+    if (!jwtToken) {
       fetch('/getJwtToken',
-           {
-            method: 'GET', headers: {'Accept': 'application/json'}
+          {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({fingerprint: fingerprint})
           }
       ) // 적절한 엔드포인트로 요청하여 JWT 토큰을 받아옴
       .then(response => {
@@ -180,6 +187,8 @@
 
   updateVotes();
 
+
 </script>
+
 </body>
 </html>
