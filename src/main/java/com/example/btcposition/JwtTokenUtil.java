@@ -3,9 +3,13 @@ package com.example.btcposition;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +33,22 @@ public class JwtTokenUtil {
     Claims claims = Jwts.claims().setSubject(username);
     claims.put("voted", voted);
 
-    Instant now = Instant.now();
-    Instant instant = now.plusSeconds(EXPIRATION_TIME);
 
+    LocalDateTime now = LocalDateTime.now();
+    Instant instant = now.atZone(ZoneId.systemDefault()).toInstant();
     System.out.println("instant = " + instant);
-    System.out.println("now = " + now);
+    Date from = Date.from(instant);
+    System.out.println("from = " + from);
+
+    // 토큰 만료 시간 계산 (다음 날 자정으로)
+    LocalDate nextDay = now.toLocalDate().plusDays(1);
+    LocalDateTime midnight = LocalDateTime.of(nextDay, LocalTime.MIDNIGHT);
+    Instant expirationInstant = midnight.atZone(ZoneId.systemDefault()).toInstant();
+    Date from1 = Date.from(expirationInstant);
+    System.out.println("expirationInstant = " + expirationInstant);
+
+    System.out.println("from1 = " + from1);
+
 
 
 //    Date now = new Date();
@@ -41,8 +56,8 @@ public class JwtTokenUtil {
 
     return Jwts.builder()
         .setClaims(claims)
-        .setIssuedAt(Date.from(now))
-        .setExpiration(Date.from(instant))
+        .setIssuedAt(Date.from(instant))
+        .setExpiration(Date.from(expirationInstant))
         .signWith(SignatureAlgorithm.HS256, secret)
         .compact();
 
@@ -70,11 +85,16 @@ public class JwtTokenUtil {
 
 
   private static final long EXPIRATION_TIME = calculateExpirationTime();
-
   private static long calculateExpirationTime() {
-    LocalDate tomorrow = LocalDate.now().plusDays(1);
-    Instant instant = tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant();
-    return instant.getEpochSecond();
+    ZoneId koreaZoneId = ZoneId.of("Asia/Seoul");
+    LocalDateTime now = LocalDateTime.now(koreaZoneId);
+
+    LocalDateTime localDateTime = now.toLocalDate().atStartOfDay();
+
+    LocalDateTime with = localDateTime.with(LocalDateTime.MAX);
+
+    Duration between = Duration.between(now, with);
+    return between.getSeconds();
 
   }
 

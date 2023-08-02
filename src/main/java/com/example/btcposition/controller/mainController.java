@@ -51,6 +51,7 @@ public class mainController {
 
     String token = request.getHeader("Authorization");
     String username = jwtTokenUtil.getUsernameFromToken(token);
+    System.out.println("username = " + username);
 
     if (jwtTokenUtil.isVoted(token)) {
       System.out.println("이미투표하였습니다");
@@ -60,7 +61,8 @@ public class mainController {
     Vote vote = voteService.getVote(value);
 
     if (vote == null){ vote = new Vote(value, 1);}
-    else{ vote.setCount(vote.getCount());}
+    else{ vote.setCount(vote.getCount()+1);}
+
 
     voteService.saveVote(vote);
 

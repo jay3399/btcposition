@@ -163,7 +163,7 @@
       return response.json();
     })
     .then(data => {
-      localStorage.setItem('voted', 'true');
+      localStorage.setItem('voted', data.voted);
       localStorage.setItem('jwtToken', data.token); // 새로운 JWT 토큰을 받아와서 저장
     })
     .catch(error => {
