@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -140,15 +141,15 @@ public class mainController {
 
     List<Map<String, Object>> fingerprint = body.get("fingerprint");
 
-    List<Object> collect = fingerprint.stream().flatMap(
-        data -> data.values().stream()
-    ).collect(Collectors.toList());
+    String collect = fingerprint.stream().map(
+        data -> (String) data.values().stream().findFirst().orElse("")
+    ).collect(Collectors.joining());
 
-
-
+    String hash = DigestUtils.sha256Hex(collect);
 
     System.out.println("fingerprint = " + fingerprint);
     System.out.println("collect = " + collect);
+    System.out.println("hash = " + hash);
 
     // 객체에 Getter 없을시 , not accept 406오류.
 
