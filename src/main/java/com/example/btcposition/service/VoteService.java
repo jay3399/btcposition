@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class voteService {
+public class VoteService {
 
   private final voteRepository voteRepository;
 

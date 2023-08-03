@@ -17,14 +17,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.example.btcposition.service.voteService;
+import com.example.btcposition.service.VoteService;
+import com.example.btcposition.service.RedisService;
+
 
 
 @Controller
 @RequiredArgsConstructor
-public class mainController {
+public class MainController {
 
-  private final voteService voteService;
+  private final VoteService voteService;
+
+  private final RedisService redisService;
+
   private final JwtTokenUtil jwtTokenUtil;
 
 
@@ -127,17 +132,11 @@ public class mainController {
   }
 
 
+
   @PostMapping("/getJwtToken")
   @ResponseBody
-  public ResponseEntity<JwtResponse> getJwtToken(@RequestBody Map<String ,List<Map<String , Object>>> body) {
+  public ResponseEntity<?> getJwtToken(@RequestBody Map<String, List<Map<String, Object>>> body, HttpServletRequest request) {
 
-
-
-
-    String username = generateRandomUsername();
-    System.out.println("username = " + username);
-    String token = jwtTokenUtil.generateToken(username,false);
-    System.out.println("token = " + token);
 
     List<Map<String, Object>> fingerprint = body.get("fingerprint");
 
@@ -147,15 +146,30 @@ public class mainController {
 
     String hash = DigestUtils.sha256Hex(collect);
 
-    System.out.println("fingerprint = " + fingerprint);
-    System.out.println("collect = " + collect);
-    System.out.println("hash = " + hash);
+
+    //  getValidate 에서 , redis내부에서 해당 hash값이 존재하면
+    if (!redisService.getValidate(hash)) {
+      return ResponseEntity.badRequest().build();
+
+    }
+
+    // 존재하지 않을시 -> 토큰발급 후 , 해당 해시값 redis에 저장 .
+    redisService.setValidate(hash);
+
+
+
+    String username = generateRandomUsername();
+    String token = jwtTokenUtil.generateToken(username, false);
+
 
     // 객체에 Getter 없을시 , not accept 406오류.
 
     return ResponseEntity.ok(new JwtResponse(token, username, false));
 
   }
+
+
+
 
   private String generateRandomUsername() {
     return UUID.randomUUID().toString().replace("-", "");
