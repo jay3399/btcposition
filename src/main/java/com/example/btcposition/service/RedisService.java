@@ -1,7 +1,10 @@
 package com.example.btcposition.service;
 
 
+import com.example.btcposition.domain.Vote;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,11 +18,14 @@ public class RedisService {
   private final RedisTemplate redisTemplate;
 
   private static final String HASH_PREFIX = "hash:";
+  private static final String VOTE_KEY_PREFIX = "vote:";
 
 
 
-  public boolean getValidate(String hash) {
+
+  public boolean isExist(String hash) {
     String value = (String) redisTemplate.opsForValue().get(HASH_PREFIX + hash);
+    System.out.println("value = " + value);
     return value != null;
   }
 
@@ -30,16 +36,68 @@ public class RedisService {
 
   }
 
-  @Scheduled(cron = "59 59 23 * * ?")
-  private void resetHash() {
+//  @Scheduled(cron = "59 59 23 * * ?")
+
+  @Scheduled(cron = "0 */1 * * * *")
+  public void resetHash() {
+    System.out.println("키삭제");
+
 
     Set keys = redisTemplate.keys(HASH_PREFIX + "*");
 
-    if (keys != null) {
-      redisTemplate.delete(keys);
-    }
+    keys.stream().forEach(
+       key -> redisTemplate.delete(key)
+    );
+
+  System.out.println("키삭제");
+
+
+
+
+//    if (keys != null) {
+//      redisTemplate.delete(keys);
+//      System.out.println("키삭제");
+//    }
 
   }
+
+
+  public List<Vote> getVoteResults() {
+    Set keys = redisTemplate.keys(VOTE_KEY_PREFIX + "*");
+
+    List<Vote> voteResults = new ArrayList<>();
+
+    String longValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + "long");
+
+    if (longValue != null) {
+      Vote longVote = new Vote("long", Integer.parseInt(longValue));
+      voteResults.add(longVote);
+    }
+
+    String shortValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + "short");
+
+    if (shortValue != null) {
+      Vote shortVote = new Vote("short", Integer.parseInt(shortValue));
+      voteResults.add(shortVote);
+    }
+
+    return voteResults;
+
+  }
+
+
+  public void setVoteResult(String voteValue) {
+    String key = VOTE_KEY_PREFIX + voteValue;
+    String value = (String) redisTemplate.opsForValue().get(key);
+    int count = value != null ? Integer.parseInt(value) : 0;
+    count++;
+
+    redisTemplate.opsForValue().set(key, String.valueOf(count));
+
+
+  }
+
+
 
 
 
