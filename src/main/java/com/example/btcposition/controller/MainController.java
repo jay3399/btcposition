@@ -60,12 +60,10 @@ public class MainController {
   public ResponseEntity<?> getVoteWithJWT(@PathVariable String value , HttpServletRequest request) {
 
 
-    String token = request.getHeader("Authorization");
 
-    String username = jwtTokenUtil.getUsernameFromToken(token);
-    System.out.println("username = " + username);
+    String username = jwtTokenUtil.getUsernameFromToken(request);
 
-    if (jwtTokenUtil.isVoted(token)) {
+    if (jwtTokenUtil.isVoted(request)) {
       System.out.println("이미투표하였습니다");
       return ResponseEntity.badRequest().body("이미투표한사용자입니다");
     }
@@ -77,59 +75,64 @@ public class MainController {
 
 
     // if .. 사용자가 localstroge에서 jwt 값을 삭제시에는 ? -> 다시 재발급후 투표가 가능하다..
-
-
     voteService.saveVote(vote);
 
 
-    String jwtToken = jwtTokenUtil.generateToken(username, true);
+    String jwtToken = jwtTokenUtil.generateToken(username);
 
-    return ResponseEntity.ok(new JwtResponse(jwtToken, username, true));
+    return ResponseEntity.ok(new JwtResponse(jwtToken, username));
   }
 
-  @PostMapping("/position/vote/{value}")
+  @PostMapping("/vote/{value}")
   @ResponseBody
-  public ResponseEntity<?> getVoteWithRedis(@PathVariable String value , HttpServletRequest request) {
+  public ResponseEntity<?> vote(@PathVariable String value , HttpServletRequest request) {
 
+    String username = jwtTokenUtil.getUsernameFromToken(request);
 
-    String token = request.getHeader("Authorization");
-
-    String username = jwtTokenUtil.getUsernameFromToken(token);
-    System.out.println("username = " + username);
-
-    if (jwtTokenUtil.isVoted(token)) {
+    // 검증
+    if (jwtTokenUtil.isVoted(request)) {
       System.out.println("이미투표하였습니다");
       return ResponseEntity.badRequest().body("이미투표한사용자입니다");
     }
-
+    // 레디스 저장
     redisService.setVoteResult(value);
 
+//    컨트롤러단에서 token을 받아서 보내주는것보다 , token을 내부적으로 사용하는 Util 클래스에서 만들도록 하는게 더 응집성에 맘ㅈ다.
 
-    String jwtToken = jwtTokenUtil.generateToken(username, true);
+//    String token = getAuthorization(request);
+//
+//    String username = jwtTokenUtil.getUsernameFromToken(token);
+//
+//    // 검증
+//    if (jwtTokenUtil.isVoted(token)) {
+//      System.out.println("이미투표하였습니다");
+//      return ResponseEntity.badRequest().body("이미투표한사용자입니다");
+//    }
 
-    return ResponseEntity.ok(new JwtResponse(jwtToken, username, true));
+    String jwtToken = jwtTokenUtil.getUpdatedToken(request);
+
+    return ResponseEntity.ok(new JwtResponse(jwtToken, username));
   }
 
 
-//  @GetMapping("/position/results")
+
+  //  @GetMapping("/position/results")
+//  @ResponseBody
+//  public ResponseEntity<List<Vote>> getResults() {
+//    List<Vote> voteResults = voteService.findAll();
+//    return ResponseEntity.ok(voteResults);
+//  }
+
+  @GetMapping("/results")
   @ResponseBody
   public ResponseEntity<List<Vote>> getResults() {
-    List<Vote> voteResults = voteService.findAll();
-    return ResponseEntity.ok(voteResults);
-  }
-
-  @GetMapping("/position/results")
-  @ResponseBody
-  public ResponseEntity<List<Vote>> getResultsWithRedis() {
     List<Vote> voteResults = redisService.getVoteResults();
     return ResponseEntity.ok(voteResults);
   }
 
-
-
-  @PostMapping("/getJwtToken")
+  @PostMapping("/token")
   @ResponseBody
-  public ResponseEntity<?> getJwtToken(@RequestBody Map<String, List<Map<String, Object>>> body, HttpServletRequest request) {
+  public ResponseEntity<?> generateToken(@RequestBody Map<String, List<Map<String, Object>>> body, HttpServletRequest request) {
 
 
     List<Map<String, Object>> fingerprint = body.get("fingerprint");
@@ -152,17 +155,29 @@ public class MainController {
 
 
     String username = generateRandomUsername();
-    String token = jwtTokenUtil.generateToken(username, false);
+    String token = jwtTokenUtil.generateToken(username);
 
 
     // 객체에 Getter 없을시 , not accept 406오류.
 
-    return ResponseEntity.ok(new JwtResponse(token, username, false));
+    return ResponseEntity.ok(new JwtResponse(token, username));
 
   }
 
+  @GetMapping("/checkVoted")
+  @ResponseBody
+  public ResponseEntity<?> isVoted(HttpServletRequest request) {
+
+    if (jwtTokenUtil.isVoted(request)) {
+      System.out.println("이미투표하였습니다");
+      return ResponseEntity.badRequest().body("이미투표한사용자입니다");
+    }
+
+    return ResponseEntity.ok(true);
+  }
+
   @Scheduled(cron = "0 */3 * * * *" )
-  public void saveRedisToMysql() {
+  public void synRedisWithMysql() {
 
     List<Vote> voteResults = redisService.getVoteResults();
 
@@ -170,11 +185,6 @@ public class MainController {
 
 
   }
-
-
-
-
-
   private String generateRandomUsername() {
     return UUID.randomUUID().toString().replace("-", "");
   }

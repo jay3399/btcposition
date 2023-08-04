@@ -89,7 +89,7 @@
   }
 
   function updateVotes() {
-    fetch('/position/results', {
+    fetch('/results', {
       method: 'GET',
     })
     .then(response => {
@@ -119,15 +119,16 @@
   }
 
   function vote(option , fingerprint) {
-    console.log(fingerprint);
-    if (localStorage.getItem('voted')) {
-      console.log('이미 투표한 사용자입니다');
-      return;
-    }
+    // if (localStorage.getItem('voted')) {
+    //   console.log('이미 투표한 사용자입니다');
+    //   return;
+    // }
+
     // 최초 사용자일 경우, 서버에서 JWT 토큰을 받아온 뒤 localStorage에 저장
     const jwtToken = localStorage.getItem("jwtToken");
+
     if (!jwtToken) {
-      fetch('/getJwtToken',
+      fetch('/token',
           {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({fingerprint: fingerprint})
@@ -141,7 +142,6 @@
         return response.json();
       })
       .then(data => {
-        console.log(data)
         localStorage.setItem('jwtToken', data.token); // JWT 토큰을 localStorage에 저장
         submitVote(option); // 투표 요청 함수 호출
       })
@@ -149,19 +149,29 @@
         console.error(error);
       });
     } else {
-      submitVote(option); // 투표 요청 함수 호출
+      fetch(
+          '/checkVoted' ,
+          {
+            headers: {'content-type': 'application/json', 'Authorization': 'Bearer ' + jwtToken}
+          }
+      ).then(
+          response =>{
+            if (!response.ok) throw new Error("이미 투표하였습니다");
+            submitVote(option , jwtToken)
+          }
+      )
     }
   }
 
   function submitVote(option) {
-    const url = option === 'long' ? '/position/vote/long' : '/position/vote/short';
+    const url = option === 'long' ? '/vote/long' : '/vote/short';
 
     // 투표 요청 시 저장된 JWT 토큰을 함께 보냄
     fetch(url, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('jwtToken')
+        'Authorization': 'Bearer ' + localStorage.getItem("jwtToken"),
       },
     })
     .then(response => {
@@ -171,7 +181,6 @@
       return response.json();
     })
     .then(data => {
-      localStorage.setItem('voted', data.voted);
       localStorage.setItem('jwtToken', data.token); // 새로운 JWT 토큰을 받아와서 저장
     })
     .catch(error => {

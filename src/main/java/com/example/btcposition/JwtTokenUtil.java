@@ -3,6 +3,7 @@ package com.example.btcposition;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -27,11 +28,11 @@ public class JwtTokenUtil {
     this.secret = secret;
   }
 
-  public String generateToken(String username, boolean voted) {
+  public String generateToken(String username) {
 
 
     Claims claims = Jwts.claims().setSubject(username);
-    claims.put("voted", voted);
+    claims.put("voted", false);
 
 
     LocalDateTime now = LocalDateTime.now();
@@ -63,7 +64,9 @@ public class JwtTokenUtil {
 
   }
 
-  public  String getUsernameFromToken(String token) {
+  public  String getUsernameFromToken(HttpServletRequest request) {
+
+    String token = getAuthorization(request);
 
     if (token != null && token.startsWith("Bearer ")) {
       token = token.substring(7); // "Bearer " 접두사를 제거합니다.
@@ -73,7 +76,27 @@ public class JwtTokenUtil {
   }
 
 
-  public  boolean isVoted(String token) {
+  // 기존의 토큰정보를 꺼내와 , claims 의 voted 부분을 true로 변경 .
+  public String getUpdatedToken(HttpServletRequest request) {
+    String token = getAuthorization(request);
+
+    if (token != null && token.startsWith("Bearer ")) {
+      token = token.substring(7); // "Bearer " 접두사를 제거합니다.
+    }
+
+    Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+
+    claims.put("voted", true);
+
+    return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS256, secret).compact();
+
+  }
+
+
+
+  public boolean isVoted(HttpServletRequest request) {
+
+    String token = getAuthorization(request);
 
     if (token != null && token.startsWith("Bearer ")) {
       token = token.substring(7); // "Bearer " 접두사를 제거합니다.
@@ -81,6 +104,10 @@ public class JwtTokenUtil {
 
     return (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
         .get("voted");
+  }
+
+  private static String getAuthorization(HttpServletRequest request) {
+    return request.getHeader("Authorization");
   }
 
 
