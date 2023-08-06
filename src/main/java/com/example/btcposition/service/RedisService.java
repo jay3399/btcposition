@@ -1,7 +1,10 @@
 package com.example.btcposition.service;
 
 
+import static com.example.btcposition.domain.VoteConstants.*;
+
 import com.example.btcposition.domain.Vote;
+import com.example.btcposition.domain.VoteConstants;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,17 +70,17 @@ public class RedisService {
 
     List<Vote> voteResults = new ArrayList<>();
 
-    String longValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + "long");
+    String longValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + LONG_VOTE);
 
     if (longValue != null) {
-      Vote longVote = new Vote("long", Integer.parseInt(longValue));
+      Vote longVote = new Vote(LONG_VOTE, Integer.parseInt(longValue));
       voteResults.add(longVote);
     }
 
-    String shortValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + "short");
+    String shortValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + SHORT_VOTE);
 
     if (shortValue != null) {
-      Vote shortVote = new Vote("short", Integer.parseInt(shortValue));
+      Vote shortVote = new Vote(SHORT_VOTE, Integer.parseInt(shortValue));
       voteResults.add(shortVote);
     }
 

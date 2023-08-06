@@ -198,6 +198,65 @@
   updateVotes();
 
 
+
+
+  // 투표 함수를 Promise로 변환
+  function getFingerprint() {
+    return new Promise((resolve) => {
+      Fingerprint2.get(resolve);
+    });
+  }
+
+  // // 서버 요청을 Promise로 변환
+  // function fetchWithJwt(url, options) {
+  //   const jwtToken = localStorage.getItem("jwtToken");
+  //   if (jwtToken) {
+  //     options.headers = Object.assign({}, options.headers, {
+  //       'Authorization': 'Bearer ' + jwtToken,
+  //     });
+  //   }
+  //
+  //   return fetch(url, options)
+  //   .then(response => {
+  //     if (!response.ok) {
+  //       throw new Error('서버 오류가 발생했습니다.');
+  //     }
+  //     return response.json();
+  //   });
+  // }
+  //
+  // // 투표 함수를 Promise로 변환
+  // function handleVote(option) {
+  //   getFingerprint()
+  //   .then(fingerprint => {
+  //     return fetchWithJwt('/token', {
+  //       method: 'POST',
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: JSON.stringify({fingerprint: fingerprint}),
+  //     });
+  //   })
+  //   .then(data => {
+  //     localStorage.setItem('jwtToken', data.token);
+  //     return fetchWithJwt('/vote/' + option, {
+  //       method: 'POST',
+  //       headers: {'content-type': 'application/json'},
+  //     });
+  //   })
+  //   .then(data => {
+  //     localStorage.setItem('jwtToken', data.token);
+  //     updateVotes();
+  //   })
+  //   .catch(error => {
+  //     console.error(error);
+  //   });
+  // }
+
+
+
+
+
+
+
 </script>
 
 </body>

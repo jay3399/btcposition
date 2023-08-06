@@ -97,9 +97,14 @@ public class MainController {
     // 레디스 저장
     redisService.setVoteResult(value);
 
-//    컨트롤러단에서 token을 받아서 보내주는것보다 , token을 내부적으로 사용하는 Util 클래스에서 만들도록 하는게 더 응집성에 맘ㅈ다.
+//    컨트롤러단에서 token을 받아서 보내주는것보다 ,requset를 보내서 token을 내부적으로 사용하는 Util 클래스에서 만들도록 하는게 더 응집성에 맘ㅈ다.
 
-//    String token = getAuthorization(request);
+    String jwtToken = jwtTokenUtil.getUpdatedToken(request);
+
+    return ResponseEntity.ok(new JwtResponse(jwtToken, username));
+
+
+    //    String token = getAuthorization(request);
 //
 //    String username = jwtTokenUtil.getUsernameFromToken(token);
 //
@@ -109,11 +114,7 @@ public class MainController {
 //      return ResponseEntity.badRequest().body("이미투표한사용자입니다");
 //    }
 
-    String jwtToken = jwtTokenUtil.getUpdatedToken(request);
-
-    return ResponseEntity.ok(new JwtResponse(jwtToken, username));
   }
-
 
 
   //  @GetMapping("/position/results")
