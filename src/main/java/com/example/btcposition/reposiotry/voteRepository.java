@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface voteRepository extends JpaRepository<Vote, Long> {
 
-  Vote findByValue(String value);
+    Vote findByValue(String value);
 
-  @Modifying
-  @Query("UPDATE Vote v SET v.count = :count WHERE v.value = :value")
-  void updateVoteCount(@Param("value") String voteValue, @Param("count") int voteCount);
+    @Modifying
+    @Query("UPDATE Vote v SET v.count = :count WHERE v.value = :value")
+    void updateVoteCount(@Param("value") String voteValue, @Param("count") int voteCount);
 
 
 }

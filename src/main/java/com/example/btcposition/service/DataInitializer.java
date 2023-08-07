@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-  private final VoteService voteService;
+    private final VoteService voteService;
 
-  @Override
-  public void run(String... args) throws Exception {
+    @Override
+    public void run(String... args) throws Exception {
 
-    Vote longVote = new Vote("long", 0);
-    voteService.saveVote(longVote);
+        Vote longVote = new Vote("long", 0);
+        voteService.saveVote(longVote);
 
-    Vote shortVote = new Vote("short", 0);
-    voteService.saveVote(shortVote);
+        Vote shortVote = new Vote("short", 0);
+        voteService.saveVote(shortVote);
 
-  }
+    }
 }

@@ -12,39 +12,34 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VoteService {
 
-  private final voteRepository voteRepository;
+    private final voteRepository voteRepository;
 
 
-  public Vote getVote(String value) {
-    return voteRepository.findByValue(value);
+    public Vote getVote(String value) {
+        return voteRepository.findByValue(value);
 
-  }
-
-  @Transactional
-  public void saveVote(Vote vote) {
-
-    voteRepository.save(vote);
-
-  }
-
-  @Transactional
-  public void updateVote(List<Vote> votes) {
-
-    for (Vote vote : votes) {
-      voteRepository.updateVoteCount(vote.getValue(), vote.getCount());
     }
-  }
+
+    @Transactional
+    public void saveVote(Vote vote) {
+
+        voteRepository.save(vote);
+
+    }
+
+    @Transactional
+    public void updateVote(List<Vote> votes) {
+
+        for (Vote vote : votes) {
+            voteRepository.updateVoteCount(vote.getValue(), vote.getCount());
+        }
+    }
 
 
+    public List<Vote> findAll() {
+        return voteRepository.findAll();
 
-  public List<Vote> findAll() {
-    return voteRepository.findAll();
-
-  }
-
-
-
-
+    }
 
 
 }

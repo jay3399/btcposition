@@ -18,21 +18,17 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 @Getter
 public class Vote {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String value;
-  private int count;
+    private String value;
+    private int count;
 
-  public Vote(String value, int count) {
-    this.value = value;
-    this.count = count;
-  }
-
-  public static String toJSON(Vote vote) {
-    return "{\"value\": \"" + vote.getValue() + "\", \"count\": " + vote.getCount() + "}";
-  }
+    public Vote(String value, int count) {
+        this.value = value;
+        this.count = count;
+    }
 
 
 }

@@ -3,83 +3,192 @@
 <head>
   <title>비트코인 롱/숏 투표</title>
   <style>
+
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
     }
+
     h1 {
       margin-top: 30px;
+      color: #333;
     }
+
     .container {
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
       margin-top: 20px;
     }
+
     .option {
-      margin: 0 20px;
+      margin: 10px 20px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+
     button {
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
     }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    /*.progress-container {*/
+    /*  display: flex;*/
+    /*  align-items: center;*/
+    /*  margin-top: 10px;*/
+    /*}*/
+
     .progress-container {
-      display: flex;
-      align-items: center;
-      margin-top: 10px;
+      text-align: center;
+      margin-top: 30px;
     }
+
+
     .progress-bar {
-      width: 200px; /* 게이지 바의 너비 설정 */
+
+      width: 200px;
       height: 20px;
-      background-color: #f0f0f0;
+      background-color: red;
       border-radius: 10px;
       margin-right: 5px;
       overflow: hidden;
-      display: flex;
+      display: inline-block;
     }
+
     .progress {
       height: 100%;
       background-color: #4CAF50;
       border-radius: 10px;
-      width: 0; /* 게이지 바의 너비는 0으로 초기화 */
+      width: 0;
     }
+
+    /*.progress-text {*/
+    /*  font-size: 14px;*/
+    /*  color: #333;*/
+    /*}*/
+
     .progress-text {
+      display: block;
       font-size: 14px;
-      color: #000;
+      color: #333;
+      margin-bottom: 10px;
     }
+
+
+
+
+
+
+
+
+    /*body {*/
+    /*  font-family: Arial, sans-serif;*/
+    /*  text-align: center;*/
+    /*}*/
+
+    /*h1 {*/
+    /*  margin-top: 30px;*/
+    /*}*/
+
+    /*.container {*/
+    /*  display: flex;*/
+    /*  justify-content: center;*/
+    /*  margin-top: 20px;*/
+    /*}*/
+
+    /*.option {*/
+    /*  margin: 0 20px;*/
+    /*}*/
+
+    /*button {*/
+    /*  padding: 10px 20px;*/
+    /*  font-size: 16px;*/
+    /*  cursor: pointer;*/
+    /*}*/
+
+    /*.progress-container {*/
+    /*  display: flex;*/
+    /*  align-items: center;*/
+    /*  margin-top: 10px;*/
+    /*}*/
+
+    /*.progress-bar {*/
+    /*  width: 200px; !* 게이지 바의 너비 설정 *!*/
+    /*  height: 20px;*/
+    /*  background-color: #f0f0f0;*/
+    /*  border-radius: 10px;*/
+    /*  margin-right: 5px;*/
+    /*  overflow: hidden;*/
+    /*  display: flex;*/
+    /*}*/
+
+    /*.progress {*/
+    /*  height: 100%;*/
+    /*  background-color: #4CAF50;*/
+    /*  border-radius: 10px;*/
+    /*  width: 0; !* 게이지 바의 너비는 0으로 초기화 *!*/
+    /*}*/
+
+    /*.progress-text {*/
+    /*  font-size: 14px;*/
+    /*  color: #000;*/
+    /*}*/
   </style>
 </head>
 <body>
 <h1>비트코인 롱/숏 투표</h1>
 <div class="container">
   <div class="option">
-    <h3>롱 포지션</h3>
+    <h3>롱</h3>
     <button onclick="getFingerprint('long')">투표하기</button>
   </div>
   <div class="option">
-    <h3>숏 포지션</h3>
+    <h3>숏</h3>
     <button onclick="getFingerprint('short')">투표하기</button>
   </div>
 </div>
 
 <div id="votingResults" class="container">
-<h3>투표 결과</h3>
-<div class="progress-container">
-  <div class="progress-bar">
-    <div id="longProgress" class="progress"></div>
+  <div class="progress-container">
+    <div class="progress-text">
+      롱 포지션: <span id="longVotes">0</span> 표 (<span id="longVotesRatio"></span>%)
+    </div>
+    <div class="progress-text">
+      숏 포지션: <span id="shortVotes">0</span> 표 (<span id="shortVotesRatio"></span>%)
+    </div>
+    <div class="progress-bar">
+      <div id="longProgress" class="progress"></div>
+    </div>
   </div>
-  <div class="progress-text">
-    롱 포지션: <span id="longVotes">0</span> 표 (<span id="longVotesRatio"></span>%)
-  </div>
-</div>
-<div class="progress-container">
-  <div class="progress-text">
-    숏 포지션: <span id="shortVotes">0</span> 표 (<span id="shortVotesRatio"></span>%)
-  </div>
-</div>
+<!--  <div class="progress-container">-->
+
+<!--    <div class="progress-bar">-->
+<!--      <div id="shortProgress" class="progress"></div>-->
+<!--    </div>-->
+<!--  </div>-->
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
+
+
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
 <script>
 
   function getFingerprint(option) {
@@ -105,11 +214,14 @@
       for (let result of data) {
         if (result.value === 'long') {
           document.getElementById('longVotes').textContent = result.count;
-          document.getElementById('longProgress').style.width = (result.count / totalVotes * 100) + '%';
-          document.getElementById('longVotesRatio').textContent = (result.count / totalVotes * 100).toFixed(2);
+          document.getElementById('longProgress').style.width = (result.count / totalVotes * 100)
+              + '%';
+          document.getElementById('longVotesRatio').textContent = (result.count / totalVotes
+              * 100).toFixed(2);
         } else if (result.value === 'short') {
           document.getElementById('shortVotes').textContent = result.count;
-          document.getElementById('shortVotesRatio').textContent = (result.count / totalVotes * 100).toFixed(2);
+          document.getElementById('shortVotesRatio').textContent = (result.count / totalVotes
+              * 100).toFixed(2);
         }
       }
     })
@@ -118,143 +230,166 @@
     });
   }
 
-  function vote(option , fingerprint) {
-    // if (localStorage.getItem('voted')) {
-    //   console.log('이미 투표한 사용자입니다');
-    //   return;
-    // }
-
-    // 최초 사용자일 경우, 서버에서 JWT 토큰을 받아온 뒤 localStorage에 저장
+  async function vote(option, fingerprint) {
     const jwtToken = localStorage.getItem("jwtToken");
 
-    if (!jwtToken) {
-      fetch('/token',
-          {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({fingerprint: fingerprint})
-          }
-      ) // 적절한 엔드포인트로 요청하여 JWT 토큰을 받아옴
-      .then(response => {
+    try {
+      if (!jwtToken) {    // 토큰 없을시 발행 , 핑거프린트같이 보내서 토큰삭제후 재요청 방지 , 토큰담고 투표요청
+        const response = await fetch('/token', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({fingerprint: fingerprint})
+        });
+
         if (!response.ok) {
-          console.log("이미 토큰을 발행하였습니다");
-          throw new Error('서버 오류가 발생했습니다.');
+          throw new Error('토큰을 중복 발행할수 없습니다.');
         }
-        return response.json();
-      })
-      .then(data => {
-        localStorage.setItem('jwtToken', data.token); // JWT 토큰을 localStorage에 저장
-        submitVote(option); // 투표 요청 함수 호출
-      })
-      .catch(error => {
-        console.error(error);
-      });
-    } else {
-      fetch(
-          '/checkVoted' ,
-          {
-            headers: {'content-type': 'application/json', 'Authorization': 'Bearer ' + jwtToken}
+
+        const data = await response.json();
+        localStorage.setItem('jwtToken', data.token);
+        await submitVote(option);
+      } else {   // 토큰 이미 존재할시 , 토큰 검증로직! 엔드포인트 추가후 검증 완료후 토큰 담고 투표요청 , 검증실패(만료)시 refresh토큰 요청후 토큰담고 투표요청
+        const response = await fetch('/validateToken',
+            {
+              method: 'POST',
+              headers: {'Content-type': 'application/json', 'Authorization': 'Bearer ' + jwtToken}
+            }
+        );
+
+        if (response.status === 401) {
+
+          const refreshToken = await fetch('/refreshToken',
+              {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({fingerprint: fingerprint})
+              });
+
+          if (!refreshToken.ok) {
+            throw new Error('토큰을 중복 발행할수 없습니다.');
           }
-      ).then(
-          response =>{
-            if (!response.ok) throw new Error("이미 투표하였습니다");
-            submitVote(option , jwtToken)
-          }
-      )
+
+          const data = await refreshToken.json();
+          localStorage.setItem("jwtToken", data.token);
+          await submitVote(option);
+        } else {
+          await submitVote(option);
+        }
+
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
-  function submitVote(option) {
+  async function submitVote(option) {
     const url = option === 'long' ? '/vote/long' : '/vote/short';
 
-    // 투표 요청 시 저장된 JWT 토큰을 함께 보냄
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem("jwtToken"),
-      },
-    })
-    .then(response => {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem("jwtToken"),
+        },
+      });
+
       if (!response.ok) {
         throw new Error('서버 오류발생');
       }
-      return response.json();
-    })
-    .then(data => {
-      localStorage.setItem('jwtToken', data.token); // 새로운 JWT 토큰을 받아와서 저장
-    })
-    .catch(error => {
-      console.error(error);
-    })
-    .finally(() => {
-      updateVotes();
-    });
-  }
 
-  if (localStorage.getItem('voted')) {
-    console.log('이미 투표한 사용자입니다');
+      const data = await response.json();
+      localStorage.setItem('jwtToken', data.token);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      updateVotes();
+    }
   }
 
   updateVotes();
 
-
-
-
-  // 투표 함수를 Promise로 변환
-  function getFingerprint() {
-    return new Promise((resolve) => {
-      Fingerprint2.get(resolve);
-    });
-  }
-
-  // // 서버 요청을 Promise로 변환
-  // function fetchWithJwt(url, options) {
-  //   const jwtToken = localStorage.getItem("jwtToken");
-  //   if (jwtToken) {
-  //     options.headers = Object.assign({}, options.headers, {
-  //       'Authorization': 'Bearer ' + jwtToken,
-  //     });
-  //   }
+  // function vote(option , fingerprint) {
+  //   // if (localStorage.getItem('voted')) {
+  //   //   console.log('이미 투표한 사용자입니다');
+  //   //   return;
+  //   // }
   //
-  //   return fetch(url, options)
-  //   .then(response => {
-  //     if (!response.ok) {
-  //       throw new Error('서버 오류가 발생했습니다.');
-  //     }
-  //     return response.json();
-  //   });
+  //   // 최초 사용자일 경우, 서버에서 JWT 토큰을 받아온 뒤 localStorage에 저장
+  //   const jwtToken = localStorage.getItem("jwtToken");
+  //
+  //   if (!jwtToken) {
+  //     fetch('/token',
+  //         {
+  //           method: 'POST', headers: {'Content-Type': 'application/json'},
+  //           body: JSON.stringify({fingerprint: fingerprint})
+  //         }
+  //     ) // 적절한 엔드포인트로 요청하여 JWT 토큰을 받아옴
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         console.log("이미 토큰을 발행하였습니다");
+  //         throw new Error('서버 오류가 발생했습니다.');
+  //       }
+  //       return response.json();
+  //     })
+  //     .then(data => {
+  //       localStorage.setItem('jwtToken', data.token); // JWT 토큰을 localStorage에 저장
+  //       submitVote(option); // 투표 요청 함수 호출
+  //     })
+  //     .catch(error => {
+  //       console.error(error);
+  //     });
+  //   } else {
+  //     fetch(
+  //         '/checkVoted' ,
+  //         {
+  //           headers: {'content-type': 'application/json', 'Authorization': 'Bearer ' + jwtToken}
+  //         }
+  //     ).then(
+  //         response =>{
+  //           if (!response.ok) throw new Error("이미 투표하였습니다");
+  //           submitVote(option , jwtToken)
+  //         }
+  //     )
+  //   }
   // }
   //
-  // // 투표 함수를 Promise로 변환
-  // function handleVote(option) {
-  //   getFingerprint()
-  //   .then(fingerprint => {
-  //     return fetchWithJwt('/token', {
-  //       method: 'POST',
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: JSON.stringify({fingerprint: fingerprint}),
-  //     });
+  // function submitVote(option) {
+  //   const url = option === 'long' ? '/vote/long' : '/vote/short';
+  //
+  //   // 투표 요청 시 저장된 JWT 토큰을 함께 보냄
+  //   fetch(url, {
+  //     method: 'POST',
+  //     headers: {
+  //       'content-type': 'application/json',
+  //       'Authorization': 'Bearer ' + localStorage.getItem("jwtToken"),
+  //     },
+  //   })
+  //   .then(response => {
+  //     if (!response.ok) {
+  //       throw new Error('서버 오류발생');
+  //     }
+  //     return response.json();
   //   })
   //   .then(data => {
-  //     localStorage.setItem('jwtToken', data.token);
-  //     return fetchWithJwt('/vote/' + option, {
-  //       method: 'POST',
-  //       headers: {'content-type': 'application/json'},
-  //     });
-  //   })
-  //   .then(data => {
-  //     localStorage.setItem('jwtToken', data.token);
-  //     updateVotes();
+  //     localStorage.setItem('jwtToken', data.token); // 새로운 JWT 토큰을 받아와서 저장
   //   })
   //   .catch(error => {
   //     console.error(error);
+  //   })
+  //   .finally(() => {
+  //     updateVotes();
   //   });
   // }
-
-
-
-
-
+  //
+  // if (localStorage.getItem('voted')) {
+  //   console.log('이미 투표한 사용자입니다');
+  // }
+  //
+  // updateVotes();
+  //
+  //
+  //
 
 
 </script>
