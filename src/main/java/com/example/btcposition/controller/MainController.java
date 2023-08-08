@@ -1,9 +1,13 @@
 package com.example.btcposition.controller;
 
+import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.JwtResponse;
 import com.example.btcposition.JwtTokenUtil;
+import com.example.btcposition.exception.RedisCommunicationException;
 import com.example.btcposition.domain.Vote;
+import com.example.btcposition.exception.ScheduledTaskException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -13,19 +17,17 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.btcposition.service.VoteService;
 import com.example.btcposition.service.RedisService;
+import org.springframework.web.bind.annotation.RestController;
 
 
-@Controller
 @RequiredArgsConstructor
+@RestController
 public class MainController {
 
     private final VoteService voteService;
@@ -36,16 +38,19 @@ public class MainController {
 
 
     @PostMapping("/vote/{value}")
-    @ResponseBody
-    public ResponseEntity<?> vote(@PathVariable String value, HttpServletRequest request) {
+    public ResponseEntity<?> vote(@PathVariable @NotBlank String value, HttpServletRequest request) {
 
         // 검증
         if (jwtTokenUtil.isVoted(request)) {
-            System.out.println("이미투표하였습니다");
-            return ResponseEntity.badRequest().body("이미투표한사용자입니다");
+            throw new AlreadyVotedException();
+//            return ResponseEntity.badRequest().body("이미투표한사용자입니다");
         }
-        // 레디스 저장
-        redisService.setVoteResult(value);
+
+        try {
+            redisService.setVoteResult(value);
+        } catch (Exception e) {
+            throw new RedisCommunicationException(e);
+        }
 
 //    컨트롤러단에서 token을 받아서 보내주는것보다 ,requset를 보내서 token을 내부적으로 사용하는 Util 클래스에서 만들도록 하는게 더 응집성에 맘ㅈ다.
 
@@ -56,28 +61,15 @@ public class MainController {
 
     }
 
-    @GetMapping("/checkVoted")
-    @ResponseBody
-    public ResponseEntity<?> isVoted(HttpServletRequest request) {
-
-        if (jwtTokenUtil.isVoted(request)) {
-            System.out.println("이미투표하였습니다");
-            return ResponseEntity.badRequest().body("이미투표한사용자입니다");
-        }
-
-        return ResponseEntity.ok(true);
-    }
-
+//
 
     @GetMapping("/results")
-    @ResponseBody
     public ResponseEntity<List<Vote>> getResults() {
         List<Vote> voteResults = redisService.getVoteResults();
         return ResponseEntity.ok(voteResults);
     }
 
     @PostMapping("/token")
-    @ResponseBody
     public ResponseEntity<?> generateToken(@RequestBody Map<String, List<Map<String, Object>>> body) {
 
         String hash = getHash(body);
@@ -111,7 +103,6 @@ public class MainController {
     }
 
     @PostMapping("/refreshToken")
-    @ResponseBody
     public ResponseEntity<?> refreshToken(
             @RequestBody Map<String, List<Map<String, Object>>> body) {
 
@@ -146,10 +137,17 @@ public class MainController {
     @Scheduled(cron = "0 */3 * * * *")
     public void synRedisWithMysql() {
 
-        List<Vote> voteResults = redisService.getVoteResults();
+        try {
 
-        voteService.updateVote(voteResults);
+            List<Vote> voteResults = redisService.getVoteResults();
 
+            voteService.updateVote(voteResults);
+
+        } catch (Exception e) {
+
+            throw new ScheduledTaskException(e);
+
+        }
 
     }
 
@@ -159,6 +157,18 @@ public class MainController {
 
 
 }
+
+//@GetMapping("/checkVoted")
+//    public ResponseEntity<?> isVoted(HttpServletRequest request) {
+//
+//        if (jwtTokenUtil.isVoted(request)) {
+//            System.out.println("이미투표하였습니다");
+//            return ResponseEntity.badRequest().body("이미투표한사용자입니다");
+//        }
+//
+//        return ResponseEntity.ok(true);
+//    }
+
 
 //  @PostMapping("/position/vote/{value}")
 //  @ResponseBody

@@ -1,7 +1,9 @@
 package com.example.btcposition;
 
+import com.example.btcposition.exception.JWTException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,8 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,11 +64,17 @@ public class JwtTokenUtil {
 
         String token = getAuthorization(request);
 
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 접두사를 제거합니다.
+        try {
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7); // "Bearer " 접두사를 제거합니다.
+            }
+            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+        } catch (JwtException e) {
+            throw new JWTException("토큰 파싱중 오류가 발생했습니다");
         }
 
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+
+
     }
 
 
@@ -89,7 +95,6 @@ public class JwtTokenUtil {
 
     }
 
-
     public boolean isVoted(HttpServletRequest request) {
 
         String token = extractToken(request);
@@ -99,9 +104,14 @@ public class JwtTokenUtil {
 //    if (token != null && token.startsWith("Bearer ")) {
 //      token = token.substring(7); // "Bearer " 접두사를 제거합니다.
 //    }
+        try {
 
-        return (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
-                .get("voted");
+            return (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
+                    .get("voted");
+
+        } catch (JwtException e) {
+            throw new JWTException("토큰 검증 중 오류가 발생했습니다");
+        }
     }
 
     public Boolean isTokenExpired(HttpServletRequest request) {
@@ -109,10 +119,10 @@ public class JwtTokenUtil {
         String token = extractToken(request);
 
 //    String token = getAuthorization(request);
-
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 접두사를 제거합니다.
-        }
+//
+//        if (token != null && token.startsWith("Bearer ")) {
+//            token = token.substring(7); // "Bearer " 접두사를 제거합니다.
+//        }
 
         try {
             return getExpirationDateFromToken(token).before(new Date());

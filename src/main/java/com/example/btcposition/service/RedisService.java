@@ -84,6 +84,7 @@ public class RedisService {
 
 
     public void setVoteResult(String voteValue) {
+
         String key = VOTE_KEY_PREFIX + voteValue;
         String value = (String) redisTemplate.opsForValue().get(key);
         int count = value != null ? Integer.parseInt(value) : 0;

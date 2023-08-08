@@ -1,10 +1,9 @@
 package com.example.btcposition.service;
 
 import com.example.btcposition.domain.Vote;
-import com.example.btcposition.reposiotry.voteRepository;
+import com.example.btcposition.reposiotry.VoteRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class VoteService {
 
-    private final voteRepository voteRepository;
+    private final VoteRepository voteRepository;
 
 
     public Vote getVote(String value) {
