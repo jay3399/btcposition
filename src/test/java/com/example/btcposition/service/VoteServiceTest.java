@@ -1,8 +1,10 @@
 package com.example.btcposition.service;
 
+import static com.example.btcposition.domain.VoteType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.btcposition.domain.Vote;
+import com.example.btcposition.domain.VoteType;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,24 +15,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.example.btcposition.reposiotry.VoteRepository;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-//@ExtendWith(MockitoExtension.class)
 class VoteServiceTest {
 
-    @Mock
+    @MockBean
     private VoteRepository voteRepository;
+
+    @Autowired
     private VoteService voteService;
 
-
-    @BeforeEach
-    public void setUp() {
-//        voteRepository = mock(VoteRepository.class);
-        voteService = new VoteService(voteRepository);
-    }
+//    @BeforeEach
+//    public void setUp() {
+////        voteRepository = mock(VoteRepository.class);
+//        voteService = new VoteService(voteRepository);
+//    }
 
 
     @Test
@@ -41,16 +44,14 @@ class VoteServiceTest {
         Vote expectedVote = mock(Vote.class);
 //        VoteRepository voteRepository = mock(VoteRepository.class);
 
-        when(voteRepository.findByValue(value)).thenReturn(expectedVote);
+        when(voteRepository.findByValue(LONG)).thenReturn(expectedVote);
 
 //        VoteService voteService1 = new VoteService(voteRepository);
 
-        Vote result = voteService.getVote(value);
+        Vote result = voteService.getVote(LONG);
 
         assertEquals(expectedVote, result);
-        verify(voteRepository).findByValue(value);
-
-
+        verify(voteRepository).findByValue(LONG);
 
 
     }
@@ -60,8 +61,6 @@ class VoteServiceTest {
     @Transactional
     void saveVote() {
         Vote vote = mock(Vote.class);
-//        VoteRepository voteRepository = mock(VoteRepository.class);
-//        VoteService voteService = new VoteService(voteRepository);
 
         voteService.saveVote(vote);
 
@@ -73,14 +72,11 @@ class VoteServiceTest {
     @Transactional
     void updateVote() {
 
-//        VoteRepository voteRepository = mock(VoteRepository.class);
-//        VoteService voteService = new VoteService(voteRepository);
-
         List<Vote> votes = new ArrayList<>();
 
         Vote vote = mock(Vote.class);
 
-        vote.setValue("value");
+        vote.setValue(LONG);
         vote.setCount(1);
         votes.add(vote);
 
@@ -89,14 +85,10 @@ class VoteServiceTest {
         verify(voteRepository).updateVoteCount(vote.getValue(), vote.getCount());
 
 
-
     }
 
     @Test
     void findAll() {
-
-//        VoteRepository voteRepository = mock(VoteRepository.class);
-//        VoteService voteService = new VoteService(voteRepository);
 
         List<Vote> votes = new ArrayList<>();
 
@@ -106,7 +98,6 @@ class VoteServiceTest {
 
         assertEquals(votes, foundVotes);
         verify(voteRepository).findAll();
-
 
 
     }

@@ -91,7 +91,58 @@
     }
 
 
+    .month-selection {
+      margin-top: 20px;
+      text-align: center;
+    }
 
+    #monthPicker {
+      /*padding: 5px;*/
+      /*font-size: 16px;*/
+      /*with: 20px;*/
+      /*height: 20px;*/
+      /*with: 10px;*/
+      /*height: 30px;*/
+      cursor: pointer;
+      border: none;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      text-align: center;
+      width: 30px; /* 원하는 너비로 설정 */
+      transition: background-color 0.3s;
+    }
+
+    #monthPicker:hover{
+      background-color: #45a049;
+    }
+
+    #monthPicker:focus{
+      outline: none;
+    }
+
+
+    #dailyResults {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #dddddd;
+      text-align: left;
+    }
+
+    #dailyResults th, #dailyResults td {
+      padding: 8px;
+      border: 1px solid #dddddd;
+    }
+
+     .daily{
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       /*flex-direction: column;*/
+     }
 
 
 
@@ -150,6 +201,9 @@
     /*  color: #000;*/
     /*}*/
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<!--  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>-->
 </head>
 <body>
 <h1>비트코인 롱/숏 투표</h1>
@@ -185,11 +239,40 @@
 </div>
 
 
+<div class="daily">
+  <h3>일별 데이터 조회 :</h3>
+  <input type="text" id="monthPicker" placeholder="확인" readonly />
+</div>
+
+<div class="container" id="dailyResults">
+
+</div>
+
+
 
 
 <script
     src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
 <script>
+
+  // document.addEventListener("DOMContentLoaded", function() {
+  //   flatpickr("#monthPicker", {
+  //     mode: "single",
+  //     dateFormat: "Y-m",
+  //     view: "months",
+  //     monthSelectorType: "static"
+  //   });
+  // });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    flatpickr("#monthPicker", {
+      dateFormat: "Y-m",
+      monthSelectorType: "static",
+      plugins: [new monthSelectPlugin({shorthand: false})] // 월만 선택할 수 있게 만듭니다.
+    });
+  });
+
+
 
   function getFingerprint(option) {
     Fingerprint2.get(function (fingerprint) {
@@ -198,6 +281,12 @@
   }
 
   function updateVotes() {
+
+    const VoteType = {
+      LONG: 'LONG',
+      SHORT: 'SHORT'
+    };
+
     fetch('/results', {
       method: 'GET',
     })
@@ -212,13 +301,13 @@
 
       let totalVotes = data.reduce((total, result) => total + result.count, 0);
       for (let result of data) {
-        if (result.value === 'long') {
+        if (result.value === VoteType.LONG) {
           document.getElementById('longVotes').textContent = result.count;
           document.getElementById('longProgress').style.width = (result.count / totalVotes * 100)
               + '%';
           document.getElementById('longVotesRatio').textContent = (result.count / totalVotes
               * 100).toFixed(2);
-        } else if (result.value === 'short') {
+        } else if (result.value === VoteType.SHORT) {
           document.getElementById('shortVotes').textContent = result.count;
           document.getElementById('shortVotesRatio').textContent = (result.count / totalVotes
               * 100).toFixed(2);
@@ -394,5 +483,7 @@
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 </body>
 </html>

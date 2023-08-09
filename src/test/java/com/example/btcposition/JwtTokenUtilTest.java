@@ -25,11 +25,11 @@ class JwtTokenUtilTest {
 
     @MockBean
     private HttpServletRequest request;
-
-    @BeforeEach
-    public void setup() {
-//        MockitoAnnotations.openMocks(this);
-    }
+//
+//    @BeforeEach
+//    public void setup() {
+////        MockitoAnnotations.openMocks(this);
+//    }
 
     @Test
     public void generateToken() {
@@ -58,10 +58,6 @@ class JwtTokenUtilTest {
         assertTrue(jwtTokenUtil.isVoted(request));
     }
 
-//    @Test
-//    public void isTokenExpired() {
-//        assertFalse(jwtTokenUtil.isTokenExpired(request));
-//    }
 
     @Test
     public void isVoted() {

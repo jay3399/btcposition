@@ -1,5 +1,6 @@
 package com.example.btcposition.controller;
 
+import com.example.btcposition.domain.VoteType;
 import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.JwtResponse;
 import com.example.btcposition.JwtTokenUtil;
@@ -46,8 +47,10 @@ public class MainController {
 //            return ResponseEntity.badRequest().body("이미투표한사용자입니다");
         }
 
+//        VoteType voteType = VoteType.fromString(value);
+
         try {
-            redisService.setVoteResult(value);
+            redisService.setVoteResultV2(value);
         } catch (Exception e) {
             throw new RedisCommunicationException(e);
         }
@@ -65,7 +68,7 @@ public class MainController {
 
     @GetMapping("/results")
     public ResponseEntity<List<Vote>> getResults() {
-        List<Vote> voteResults = redisService.getVoteResults();
+        List<Vote> voteResults = redisService.getVoteResultsV2();
         return ResponseEntity.ok(voteResults);
     }
 

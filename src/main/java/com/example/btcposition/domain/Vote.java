@@ -1,10 +1,16 @@
 package com.example.btcposition.domain;
 
 
+import com.example.btcposition.service.VoteService;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,16 +30,27 @@ public class Vote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String value;
+//    private String value;
+
+    @Enumerated(EnumType.STRING)
+    private VoteType value;
     private int count;
+
+    @Column(name = "vote_date")
+    private LocalDate voteDate;
 
     public Vote() {
 
     }
 
-    public Vote(String value, int count) {
+    public Vote(VoteType value, int count) {
         this.value = value;
         this.count = count;
+    }
+
+    @PrePersist
+    private void perPersist() {
+        this.voteDate = LocalDate.now();
     }
 
 

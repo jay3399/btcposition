@@ -3,6 +3,7 @@ package com.example.btcposition.reposiotry;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.btcposition.domain.Vote;
+import com.example.btcposition.domain.VoteType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -27,13 +28,12 @@ class VoteRepositoryTest {
 
         Vote vote = new Vote();
 
-        vote.setValue("value");
+        vote.setValue(VoteType.LONG);
 
         testEntityManager.persist(vote);
         testEntityManager.flush();
 
-
-        Vote found = voteRepository.findByValue(vote.getValue());
+        Vote found = voteRepository.findByValue(VoteType.LONG);
 
         assertEquals(vote, found);
 
@@ -45,11 +45,10 @@ class VoteRepositoryTest {
     @Test
     public void UpdateVoteCount() {
 
-        String value = "value";
 
         Vote vote = new Vote();
 
-        vote.setValue(value);
+        vote.setValue(VoteType.LONG);
         vote.setCount(3);
 
         testEntityManager.persist(vote);
@@ -60,7 +59,7 @@ class VoteRepositoryTest {
 
 
 
-        Vote updated = voteRepository.findByValue(value);
+        Vote updated = voteRepository.findByValue(VoteType.LONG);
 
 
         assertEquals(10, updated.getCount());

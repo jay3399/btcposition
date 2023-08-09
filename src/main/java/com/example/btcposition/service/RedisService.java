@@ -2,9 +2,11 @@ package com.example.btcposition.service;
 
 
 import static com.example.btcposition.domain.VoteConstants.*;
+import static com.example.btcposition.domain.VoteType.*;
 
 import com.example.btcposition.domain.Vote;
 import com.example.btcposition.domain.VoteConstants;
+import com.example.btcposition.domain.VoteType;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,26 +62,39 @@ public class RedisService {
 
 
     public List<Vote> getVoteResults() {
-        Set keys = redisTemplate.keys(VOTE_KEY_PREFIX + "*");
 
         List<Vote> voteResults = new ArrayList<>();
 
         String longValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + LONG_VOTE);
 
         if (longValue != null) {
-            Vote longVote = new Vote(LONG_VOTE, Integer.parseInt(longValue));
+            Vote longVote = new Vote(LONG, Integer.parseInt(longValue));
             voteResults.add(longVote);
         }
 
         String shortValue = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + SHORT_VOTE);
 
         if (shortValue != null) {
-            Vote shortVote = new Vote(SHORT_VOTE, Integer.parseInt(shortValue));
+            Vote shortVote = new Vote(SHORT, Integer.parseInt(shortValue));
             voteResults.add(shortVote);
         }
 
         return voteResults;
 
+    }
+
+    public List<Vote> getVoteResultsV2() {
+        List<Vote> voteResults = new ArrayList<>();
+
+        for (VoteType voteType : VoteType.values()) {
+            String value = (String) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + voteType.name());
+            if (value != null) {
+                Vote vote = new Vote(voteType, Integer.parseInt(value));
+                voteResults.add(vote);
+            }
+        }
+
+        return voteResults;
     }
 
 
@@ -93,6 +108,15 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, String.valueOf(count));
 
 
+    }
+
+    public void setVoteResultV2(String voteValue) {
+        VoteType voteType = VoteType.fromString(voteValue);
+        String key = VOTE_KEY_PREFIX + voteType.name();
+        String value = (String) redisTemplate.opsForValue().get(key);
+        int count = value != null ? Integer.parseInt(value) : 0;
+        count++;
+        redisTemplate.opsForValue().set(key, String.valueOf(count));
     }
 
 
