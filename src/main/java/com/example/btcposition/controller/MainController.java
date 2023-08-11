@@ -4,6 +4,7 @@ import com.example.btcposition.domain.VoteType;
 import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.JwtResponse;
 import com.example.btcposition.JwtTokenUtil;
+import com.example.btcposition.exception.JWTException;
 import com.example.btcposition.exception.RedisCommunicationException;
 import com.example.btcposition.domain.Vote;
 import com.example.btcposition.exception.ScheduledTaskException;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.example.btcposition.service.VoteService;
 import com.example.btcposition.service.RedisService;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -39,29 +41,18 @@ public class MainController {
 
 
     @PostMapping("/vote/{value}")
-    public ResponseEntity<?> vote(@PathVariable @NotBlank String value, HttpServletRequest request) {
+    public ResponseEntity<?> vote(@PathVariable @NotBlank String value,
+            HttpServletRequest request) {
 
-        // 검증
-        if (jwtTokenUtil.isVoted(request)) {
-            throw new AlreadyVotedException();
-//            return ResponseEntity.badRequest().body("이미투표한사용자입니다");
-        }
+        validateVote(request);
 
-//        VoteType voteType = VoteType.fromString(value);
+        processVote(value);
 
-        try {
-            redisService.setVoteResultV2(value);
-        } catch (Exception e) {
-            throw new RedisCommunicationException(e);
-        }
+        JwtResponse jwtResponse = generateJwtResponse(request);
+
+        return ResponseEntity.ok(jwtResponse);
 
 //    컨트롤러단에서 token을 받아서 보내주는것보다 ,requset를 보내서 token을 내부적으로 사용하는 Util 클래스에서 만들도록 하는게 더 응집성에 맘ㅈ다.
-
-        String jwtToken = jwtTokenUtil.getUpdatedToken(request);
-
-        return ResponseEntity.ok(
-                new JwtResponse(jwtToken, jwtTokenUtil.getUsernameFromToken(request)));
-
     }
 
 //
@@ -72,8 +63,17 @@ public class MainController {
         return ResponseEntity.ok(voteResults);
     }
 
+
+    @GetMapping("/dailyResults")
+    public ResponseEntity<?> getDailyResults(@RequestParam String month) {
+        System.out.println("month = " + month);
+        return null;
+    }
+
+
     @PostMapping("/token")
-    public ResponseEntity<?> generateToken(@RequestBody Map<String, List<Map<String, Object>>> body) {
+    public ResponseEntity<?> generateToken(
+            @RequestBody Map<String, List<Map<String, Object>>> body) {
 
         String hash = getHash(body);
 
@@ -98,11 +98,9 @@ public class MainController {
     public ResponseEntity<?> validateToken(HttpServletRequest request) {
 
         if (jwtTokenUtil.isTokenExpired(request)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 만료되었습니다.");
+            throw new JWTException("토큰이 만료되었습니다");
         }
-
         return ResponseEntity.ok(true);
-
     }
 
     @PostMapping("/refreshToken")
@@ -117,6 +115,26 @@ public class MainController {
         String token = jwtTokenUtil.generateToken(username);
 
         return ResponseEntity.ok(new JwtResponse(token, username));
+    }
+
+    private void validateVote(HttpServletRequest request) {
+        if (jwtTokenUtil.isVoted(request)) {
+            throw new AlreadyVotedException();
+        }
+    }
+
+    private void processVote(String value) {
+        try {
+            redisService.setVoteResultV2(value);
+        } catch (Exception e) {
+            throw new RedisCommunicationException(e);
+        }
+    }
+
+    private JwtResponse generateJwtResponse(HttpServletRequest request) {
+        String jwtToken = jwtTokenUtil.getUpdatedToken(request);
+        String username = jwtTokenUtil.getUsernameFromToken(request);
+        return new JwtResponse(jwtToken, username);
     }
 
 
@@ -136,13 +154,12 @@ public class MainController {
     //토큰 00:00:00 만료 , hash 00:00:00 만료.
     //리프레시 하는 시점에서는 ( 토큰이 만료된 00:00:00이후 , hash 는 무조건 존재하지 않는다 , 검증필요업고 그냥 발행한다  )
 
-
     @Scheduled(cron = "0 */3 * * * *")
     public void synRedisWithMysql() {
 
         try {
 
-            List<Vote> voteResults = redisService.getVoteResults();
+            List<Vote> voteResults = redisService.getVoteResultsV2();
 
             voteService.updateVote(voteResults);
 
@@ -171,7 +188,6 @@ public class MainController {
 //
 //        return ResponseEntity.ok(true);
 //    }
-
 
 //  @PostMapping("/position/vote/{value}")
 //  @ResponseBody

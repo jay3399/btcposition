@@ -203,7 +203,9 @@
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
-<!--  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+  <!--  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>-->
 </head>
 <body>
 <h1>비트코인 롱/숏 투표</h1>
@@ -257,20 +259,62 @@
 
   // document.addEventListener("DOMContentLoaded", function() {
   //   flatpickr("#monthPicker", {
-  //     mode: "single",
   //     dateFormat: "Y-m",
-  //     view: "months",
-  //     monthSelectorType: "static"
+  //     monthSelectorType: "static",
+  //     plugins: [new monthSelectPlugin({shorthand: false})] // 월만 선택할 수 있게 만듭니다.
   //   });
   // });
 
   document.addEventListener("DOMContentLoaded", function() {
-    flatpickr("#monthPicker", {
+    const monthPicker = document.getElementById("monthPicker");
+
+    new flatpickr(monthPicker, {
       dateFormat: "Y-m",
       monthSelectorType: "static",
-      plugins: [new monthSelectPlugin({shorthand: false})] // 월만 선택할 수 있게 만듭니다.
+      plugins: [new monthSelectPlugin({ shorthand: false })],
+      onChange: function (selectDates, dateStr) {
+        fetchDailyResults(dateStr);
+      }
     });
   });
+
+
+  async function fetchDailyResults(dataStr) {
+    try {
+      const formattedDate = moment(dataStr, "MMMM YYYY").format("YYYY-MM");
+
+      const result = await fetch(`/dailyResults?month=${formattedDate}`);
+
+      let data = await result.json();
+
+      displayDailyResults(data);
+    } catch (errer){
+      console.error("error")
+    }
+  }
+
+  function displayDailyResults(data) {
+
+    const dailyResultsContainer = document.getElementById("dailyResults");
+
+    dailyResultsContainer.innerHTML=""
+
+
+    data.forEach(
+        (result) => {
+          const resultDiv =  document.createElement("div");
+          resultDiv.innerHTML =
+              '<h4>result.date</h4>\n'
+              + '      <p>롱 포지션: result.long} / 숏 포지션: ${result.short}</p>';
+
+          dailyResultsContainer.appendChild(resultDiv);
+        });
+  }
+
+
+
+
+
 
 
 

@@ -37,19 +37,13 @@ public class JwtTokenUtil {
 
         LocalDateTime now = LocalDateTime.now();
         Instant instant = now.atZone(ZoneId.systemDefault()).toInstant();
-        System.out.println("instant = " + instant);
         Date from = Date.from(instant);
-        System.out.println("from = " + from);
 
         // 토큰 만료 시간 계산 (다음 날 자정으로)
         LocalDate nextDay = now.toLocalDate().plusDays(1);
         LocalDateTime midnight = LocalDateTime.of(nextDay, LocalTime.MIDNIGHT);
         Instant expirationInstant = midnight.atZone(ZoneId.systemDefault()).toInstant();
         Date from1 = Date.from(expirationInstant);
-        System.out.println("expirationInstant = " + expirationInstant);
-
-//    Date now = new Date();
-//    Date expiration = new Date(now.getTime() + 10000000L);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -62,29 +56,19 @@ public class JwtTokenUtil {
 
     public String getUsernameFromToken(HttpServletRequest request) {
 
-        String token = getAuthorization(request);
+        String token = extractToken(request);
 
         try {
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7); // "Bearer " 접두사를 제거합니다.
-            }
             return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
         } catch (JwtException e) {
             throw new JWTException("토큰 파싱중 오류가 발생했습니다");
         }
-
-
-
     }
 
 
     // 기존의 토큰정보를 꺼내와 , claims 의 voted 부분을 true로 변경 .
     public String getUpdatedToken(HttpServletRequest request) {
-        String token = getAuthorization(request);
-
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 접두사를 제거합니다.
-        }
+        String token = extractToken(request);
 
         Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
 
@@ -92,23 +76,15 @@ public class JwtTokenUtil {
 
         return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
-
     }
 
     public boolean isVoted(HttpServletRequest request) {
 
         String token = extractToken(request);
 
-//    String token = getAuthorization(request);
-//
-//    if (token != null && token.startsWith("Bearer ")) {
-//      token = token.substring(7); // "Bearer " 접두사를 제거합니다.
-//    }
         try {
-
             return (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
                     .get("voted");
-
         } catch (JwtException e) {
             throw new JWTException("토큰 검증 중 오류가 발생했습니다");
         }
@@ -118,16 +94,10 @@ public class JwtTokenUtil {
 
         String token = extractToken(request);
 
-//    String token = getAuthorization(request);
-//
-//        if (token != null && token.startsWith("Bearer ")) {
-//            token = token.substring(7); // "Bearer " 접두사를 제거합니다.
-//        }
-
         try {
             return getExpirationDateFromToken(token).before(new Date());
         } catch (ExpiredJwtException e) {
-            return true; // 토큰이 만료되었음을 나타냄
+            return true;
         }
     }
 
@@ -149,7 +119,7 @@ public class JwtTokenUtil {
 
 
     private static String extractToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
+        String token = getAuthorization(request);
         if (token != null && token.startsWith("Bearer ")) {
             return token.substring(7); // "Bearer " 접두사를 제거합니다.
         }

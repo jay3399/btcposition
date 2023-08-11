@@ -1,9 +1,12 @@
 package com.example.btcposition;
 
+import io.lettuce.core.ReadFrom;
+import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -15,9 +18,24 @@ public class RedisConfig {
     private @Value("${spring.data.redis.host}") String redisHost;
     private @Value("${spring.data.redis.port}") int redisPort;
 
+    private long timeout;
+
+    private int maxActive;
+
+    private int maxIdle;
+
+    private int minIdle;
+
+
     @Bean
     public RedisConnectionFactory connectionFactory() {
         return new LettuceConnectionFactory(redisHost, redisPort);
+
+//        LettuceClientConfiguration configuration = LettuceClientConfiguration.builder()
+//                .commandTimeout(Duration.ofMillis(timeout)).readFrom(
+//                        ReadFrom.MASTER_PREFERRED).build();
+
+//        return LettuceConnectionFactory(redisHost, redisPort, configuration);
     }
 
     @Bean

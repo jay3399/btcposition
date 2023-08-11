@@ -19,34 +19,38 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AlreadyVotedException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyVotedException(AlreadyVotedException e) {
-        log.error("Already voted exception:", e);
-        ErrorResponse response = ErrorResponse.create(e, HttpStatus.FORBIDDEN.value());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+
+        return handleException(e, HttpStatus.FORBIDDEN, e.getMessage());
         // badRequest -> 400에러 , 클라이언트 요청자체가 틀린것 <-> 403 요청은 올바르지만 권한이슈 . 403이 적절하다
     }
 
     @ExceptionHandler(RedisCommunicationException.class)
     public ResponseEntity<ErrorResponse> handleRedisException(RedisCommunicationException e) {
-        log.error("redis error", e);
-        ErrorResponse response = ErrorResponse.create(e, HttpStatus.INTERNAL_SERVER_ERROR.value());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return handleException(e, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(JWTException.class)
     public ResponseEntity<ErrorResponse> handleJWTException(JWTException e) {
-        log.error("jwt error" , e);
-        ErrorResponse response = ErrorResponse.create(e, HttpStatus.UNAUTHORIZED.value());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return handleException(e, HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 
     @ExceptionHandler(ScheduledTaskException.class)
     public ResponseEntity<ErrorResponse> handleScheduledTaskException(ScheduledTaskException e) {
-
-        log.error("scheduled error", e);
-        ErrorResponse response = ErrorResponse.create(e, HttpStatus.INTERNAL_SERVER_ERROR.value());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-
-
+        return handleException(e, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
- }
+
+
+    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpStatus status,
+            String logMessage) {
+        log.error(logMessage, e);
+        ErrorResponse response = ErrorResponse.create(e, status.value());
+        return ResponseEntity.status(status).body(response);
+    }
+
+
+}
+
+//        log.error("Already voted exception:", e);
+//        ErrorResponse response = ErrorResponse.create(e, HttpStatus.FORBIDDEN.value());
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
 
