@@ -157,17 +157,6 @@ public class MainController {
     @Scheduled(cron = "0 */3 * * * *")
     public void synRedisWithMysql() {
 
-        try {
-
-            List<Vote> voteResults = redisService.getVoteResultsV2();
-
-            voteService.updateVote(voteResults);
-
-        } catch (Exception e) {
-
-            throw new ScheduledTaskException(e);
-
-        }
 
     }
 

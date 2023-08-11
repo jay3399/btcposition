@@ -11,7 +11,7 @@ public class ErrorResponse {
     private String message;
     private int status;
 
-    public static ErrorResponse create(Exception e , int status) {
+    public static ErrorResponse create(Exception e, int status) {
         ErrorResponse response = new ErrorResponse();
         response.setMessage(e.getMessage());
         response.setStatus(status);

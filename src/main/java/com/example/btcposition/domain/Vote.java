@@ -30,7 +30,6 @@ public class Vote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    private String value;
 
     @Enumerated(EnumType.STRING)
     private VoteType value;

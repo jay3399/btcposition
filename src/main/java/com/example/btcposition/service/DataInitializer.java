@@ -3,7 +3,6 @@ package com.example.btcposition.service;
 
 import com.example.btcposition.domain.Vote;
 import com.example.btcposition.domain.VoteType;
-import com.example.btcposition.service.VoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

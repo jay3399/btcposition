@@ -33,15 +33,13 @@ public class VoteSummary {
         this.shortCount = shortCount;
     }
 
-    public static VoteSummary create(LocalDate date , long longCount , long shortCount
+    public static VoteSummary create(LocalDate date, long longCount, long shortCount
     ) {
         VoteSummary voteSummary = new VoteSummary(date, longCount, shortCount);
 
         return voteSummary;
 
     }
-
-
 
 
 }

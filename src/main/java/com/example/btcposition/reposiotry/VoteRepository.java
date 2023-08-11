@@ -23,6 +23,5 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     void deleteByVoteDate(LocalDate voteDate);
 
 
-
 }
 

@@ -48,7 +48,6 @@ public class VoteService {
 
 
     @Transactional
-    @Scheduled(cron = "0 0 0 * * ?")
     public void summarizeVotes() {
 
         LocalDate yesterday = LocalDate.now().minusDays(1);

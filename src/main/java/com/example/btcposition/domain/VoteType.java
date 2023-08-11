@@ -2,7 +2,7 @@ package com.example.btcposition.domain;
 
 public enum VoteType {
 
-    LONG ,
+    LONG,
     SHORT;
 
     public static VoteType fromString(String value) {
