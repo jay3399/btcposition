@@ -42,11 +42,9 @@ class VoteServiceTest {
         String value = "value";
 
         Vote expectedVote = mock(Vote.class);
-//        VoteRepository voteRepository = mock(VoteRepository.class);
 
         when(voteRepository.findByValue(LONG)).thenReturn(expectedVote);
 
-//        VoteService voteService1 = new VoteService(voteRepository);
 
         Vote result = voteService.getVote(LONG);
 
