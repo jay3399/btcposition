@@ -23,6 +23,16 @@ public class RedisService {
     public static final String VOTE_KEY_PREFIX = "vote:";
 
 
+    public void deleteKeysByPreFix() {
+        Set<String> keys = redisTemplate.keys(VOTE_KEY_PREFIX + "*");
+
+        keys.forEach(
+                key ->
+                        redisTemplate.delete(key)
+        );
+
+    }
+
     public boolean isExist(String hash) {
         String value = (String) redisTemplate.opsForValue().get(HASH_PREFIX + hash);
         log.debug("value={}", value);
@@ -66,13 +76,13 @@ public class RedisService {
         if (redisTemplate.opsForValue().get(key) == null) {
             redisTemplate.opsForValue().set(key, 0);
         }
+
         redisTemplate.opsForValue().increment(key);
     }
 
 
     private void addVoteResult(List<Vote> voteResults, VoteType voteType) {
-        Integer value = (Integer) redisTemplate.opsForValue()
-                .get(VOTE_KEY_PREFIX + voteType.name());
+        Integer value = (Integer) redisTemplate.opsForValue().get(VOTE_KEY_PREFIX + voteType.name());
         if (value != null) {
             Vote vote = new Vote(voteType, value);
             voteResults.add(vote);

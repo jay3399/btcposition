@@ -23,6 +23,8 @@ public class ScheduledTasks {
         try {
             List<Vote> voteResults = redisService.getVoteResultsV2();
 
+            System.out.println("voteResults = " + voteResults);
+
             voteService.updateVote(voteResults);
 
         } catch (Exception e) {
@@ -32,12 +34,14 @@ public class ScheduledTasks {
 
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void summarizeVotes() {
-        voteService.summarizeVotes();
+   @Scheduled(cron = "59 59 23 * * ?")
+   public void summarizeDailyVotes() {
+        voteService.summarizeVotes(); // vote -> summary 데이터 이동
+        redisService.deleteKeysByPreFix();
     }
 
-    //  @Scheduled(cron = "59 59 23 * * ?")
+
+
     @Scheduled(cron = "0 */1 * * * *")
     public void resetHash() {
 

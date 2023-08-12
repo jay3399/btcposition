@@ -1,5 +1,6 @@
 package com.example.btcposition.controller;
 
+import com.example.btcposition.domain.DailyResultDto;
 import com.example.btcposition.domain.VoteType;
 import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.JwtResponse;
@@ -10,6 +11,8 @@ import com.example.btcposition.domain.Vote;
 import com.example.btcposition.exception.ScheduledTaskException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -66,8 +69,14 @@ public class MainController {
 
     @GetMapping("/dailyResults")
     public ResponseEntity<?> getDailyResults(@RequestParam String month) {
-        System.out.println("month = " + month);
-        return null;
+
+           System.out.println("month = " + month);
+
+            LocalDate date = LocalDate.parse(month + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            System.out.println("date = " + date);
+            List<DailyResultDto> dailyResults = voteService.findDailyResult(date);
+            System.out.println("dailyResults = " + dailyResults);
+            return new ResponseEntity<>(dailyResults, HttpStatus.OK);
     }
 
 

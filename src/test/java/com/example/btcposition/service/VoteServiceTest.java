@@ -4,7 +4,11 @@ import static com.example.btcposition.domain.VoteType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.btcposition.domain.Vote;
+import com.example.btcposition.domain.VoteSummary;
 import com.example.btcposition.domain.VoteType;
+import com.example.btcposition.reposiotry.VoteSummaryRepository;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.example.btcposition.reposiotry.VoteRepository;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,13 +32,19 @@ class VoteServiceTest {
     private VoteRepository voteRepository;
 
     @Autowired
+    private VoteSummaryRepository repository;
+
+    @Autowired
     private VoteService voteService;
+
 
 //    @BeforeEach
 //    public void setUp() {
 ////        voteRepository = mock(VoteRepository.class);
 //        voteService = new VoteService(voteRepository);
 //    }
+
+
 
 
     @Test
@@ -53,6 +64,8 @@ class VoteServiceTest {
 
 
     }
+
+
 
 
     @Test

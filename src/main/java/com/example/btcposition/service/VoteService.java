@@ -7,7 +7,9 @@ import com.example.btcposition.domain.VoteType;
 import com.example.btcposition.reposiotry.VoteRepository;
 import com.example.btcposition.reposiotry.VoteSummaryRepository;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,7 @@ public class VoteService {
     public void updateVote(List<Vote> votes) {
 
         for (Vote vote : votes) {
+            System.out.println("vote = " + vote.getValue()+ vote.getCount());
             voteRepository.updateVoteCount(vote.getValue(), vote.getCount());
         }
     }
@@ -47,13 +50,24 @@ public class VoteService {
     }
 
     public List<DailyResultDto> findDailyResult(LocalDate date) {
+        LocalDate startDate = date.withDayOfMonth(1);
+        LocalDate endDate = date.withDayOfMonth(date.lengthOfMonth());
+        System.out.println("endDate = " + endDate);
+        System.out.println("startDate = " + startDate);
 
-        // 월 기준으로 해당 월에 해당하는 모든 데이터 끌고온다
+        List<VoteSummary> voteSummaries = voteSummaryRepository.findAllByDate(startDate,
+                endDate);
 
-        //스트림 매핑 해서 dfo 반환 고려할수있지만 , 성능상 queryProjection 사용한다
 
-        return null;
+        System.out.println("voteSummaries = " + voteSummaries);
 
+       return voteSummaries.stream().map(
+                result -> {
+                    System.out.println("result.getLongCount() = " + result.getLongCount());
+                    return DailyResultDto.create(result);
+                }
+
+        ).collect(Collectors.toList());
 
     }
 
@@ -62,15 +76,21 @@ public class VoteService {
     public void summarizeVotes() {
 
         LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDate now = LocalDate.now();
 
-        long longCount = voteRepository.countByValueAndVoteDate(VoteType.LONG, yesterday);
-        long shortCount = voteRepository.countByValueAndVoteDate(VoteType.SHORT, yesterday);
+        long longCount = voteRepository.getCount(VoteType.LONG);
+        long shortCount = voteRepository.getCount(VoteType.SHORT);
 
-        VoteSummary voteSummary = VoteSummary.create(yesterday, longCount, shortCount);
+        System.out.println("shortCount = " + shortCount);
+        System.out.println("longCount = " + longCount);
+
+        VoteSummary voteSummary = VoteSummary.create(now, longCount, shortCount);
 
         voteSummaryRepository.save(voteSummary);
 
-        voteRepository.deleteByVoteDate(yesterday);
+//        voteRepository.deleteByVoteDate(now);
+        voteRepository.updateVoteCount(VoteType.LONG, 0);
+        voteRepository.updateVoteCount(VoteType.SHORT, 0);
 
     }
 

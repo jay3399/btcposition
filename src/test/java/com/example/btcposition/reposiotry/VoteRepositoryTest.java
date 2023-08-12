@@ -3,16 +3,21 @@ package com.example.btcposition.reposiotry;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.btcposition.domain.Vote;
+import com.example.btcposition.domain.VoteSummary;
 import com.example.btcposition.domain.VoteType;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 
-@DataJpaTest // 별도 트렌젝셔널 설정 필요없다.
+@DataJpaTest // 별도 트렌젝셔널 설정 필요없다 + 자동 롤백
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 class VoteRepositoryTest {
 
@@ -20,7 +25,12 @@ class VoteRepositoryTest {
     private VoteRepository voteRepository;
 
     @Autowired
+    private VoteSummaryRepository voteSummaryRepository;
+
+    @Autowired
     private TestEntityManager testEntityManager;
+
+
 
 
     @Test
@@ -37,9 +47,21 @@ class VoteRepositoryTest {
 
         assertEquals(vote, found);
 
+    }
 
+    @Test
+    @Rollback(value = false)
+    void saveSum() {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
+        LocalDate date = LocalDate.parse("2023-7-23", formatter);
+
+        voteSummaryRepository.save(VoteSummary.create(date, 2, 2));
 
     }
+
+
+
 
 
     @Test

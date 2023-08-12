@@ -20,6 +20,9 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     long countByValueAndVoteDate(VoteType value, LocalDate voteDate);
 
+    @Query("select v.count from Vote v where v.value=:value")
+    long getCount(@Param("value") VoteType voteType);
+
     void deleteByVoteDate(LocalDate voteDate);
 
 
