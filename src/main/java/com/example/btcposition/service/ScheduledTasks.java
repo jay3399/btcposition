@@ -5,6 +5,7 @@ import com.example.btcposition.domain.Vote;
 import com.example.btcposition.exception.ScheduledTaskException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,29 +16,40 @@ public class ScheduledTasks {
     private final RedisService redisService;
     private final VoteService voteService;
 
+    private final RabbitTemplate rabbitTemplate;
+
     // 스케줄 관리.
 
-    @Scheduled(cron = "0 */3 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     public void synRedisWithMysql() {
 
-        try {
-            List<Vote> voteResults = redisService.getVoteResultsV2();
+        rabbitTemplate.convertAndSend("voteExchange", "vote", "synRedisWithMysql");
 
-            System.out.println("voteResults = " + voteResults);
 
-            voteService.updateVote(voteResults);
-
-        } catch (Exception e) {
-
-            throw new ScheduledTaskException(e);
-        }
+//        try {
+//            List<Vote> voteResults = redisService.getVoteResultsV2();
+//
+//            System.out.println("voteResults = " + voteResults);
+//
+//            voteService.updateVote(voteResults);
+//
+//        } catch (Exception e) {
+//
+//            throw new ScheduledTaskException(e);
+//        }
 
     }
 
-   @Scheduled(cron = "59 59 23 * * ?")
-   public void summarizeDailyVotes() {
-        voteService.summarizeVotes(); // vote -> summary 데이터 이동
-        redisService.deleteKeysByPreFix();
+//   @Scheduled(cron = "59 59 23 * * ?")
+ @Scheduled(cron = "0 */3 * * * *")
+     public void summarizeDailyVotes() {
+
+       rabbitTemplate.convertAndSend("voteExchange", "vote", "summarizeDailyVotes");
+
+//
+//
+//       voteService.summarizeVotes(); // vote -> summary 데이터 이동
+//        redisService.deleteKeysByPreFix();
     }
 
 
@@ -45,6 +57,7 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 */1 * * * *")
     public void resetHash() {
 
+        System.out.println("키삭제");
         redisService.resetHash();
 
     }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final VoteSummaryRepository voteSummaryRepository;
+
 
 
     public Vote getVote(VoteType value) {
@@ -93,6 +95,8 @@ public class VoteService {
         voteRepository.updateVoteCount(VoteType.SHORT, 0);
 
     }
+
+
 
 
 }
