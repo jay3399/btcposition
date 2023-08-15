@@ -1,6 +1,7 @@
 package com.example.btcposition;
 
 import com.example.btcposition.domain.ErrorResponse;
+import com.example.btcposition.exception.AlreadyHashException;
 import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.exception.JWTException;
 import com.example.btcposition.exception.RedisCommunicationException;
@@ -39,9 +40,14 @@ public class GlobalExceptionHandler {
         return handleException(e, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
+    @ExceptionHandler(AlreadyHashException.class)
+    public ResponseEntity<ErrorResponse> handleHashException(AlreadyHashException e) {
+        return handleException(e, HttpStatus.FORBIDDEN, e.getMessage());
+    }
 
     public ResponseEntity<ErrorResponse> handleException(Exception e, HttpStatus status,
             String logMessage) {
+
         log.error(logMessage, e);
         ErrorResponse response = ErrorResponse.create(e, status.value());
         return ResponseEntity.status(status).body(response);

@@ -1,5 +1,6 @@
 package com.example.btcposition;
 
+import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.exception.JWTException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -78,17 +79,43 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    public boolean isVoted(HttpServletRequest request) {
+    public void isVoted(HttpServletRequest request) {
 
         String token = extractToken(request);
 
-        try {
-            return (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
-                    .get("voted");
-        } catch (JwtException e) {
-            throw new JWTException("토큰 검증 중 오류가 발생했습니다");
+       try {
+        boolean voted = (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get("voted");
+        if (voted) {
+            throw new AlreadyVotedException();
         }
+    } catch (JwtException e) {
+        throw new JWTException("파싱중 오류가 발생했습니다");
     }
+
+
+}
+
+
+//    public boolean isVotedV2(HttpServletRequest request) {
+//
+//        String token = extractToken(request);
+//
+//        boolean isVoted = false;
+//
+//        try {
+//            isVoted = (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
+//                    .get("voted");
+//        } catch (JwtException e) {
+//            throw new JWTException("파싱중 오류가 발생했습니다");
+//        }
+//
+//        if (!isVoted) {
+//            throw new AlreadyVotedException();
+//        }
+//
+//        return isVoted;
+//
+//    }
 
     public Boolean isTokenExpired(HttpServletRequest request) {
 

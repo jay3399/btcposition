@@ -1,33 +1,23 @@
 package com.example.btcposition.controller;
 
 import com.example.btcposition.domain.DailyResultDto;
-import com.example.btcposition.domain.VoteType;
-import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.JwtResponse;
-import com.example.btcposition.JwtTokenUtil;
-import com.example.btcposition.exception.JWTException;
-import com.example.btcposition.exception.RedisCommunicationException;
 import com.example.btcposition.domain.Vote;
-import com.example.btcposition.exception.ScheduledTaskException;
+import com.example.btcposition.service.RedisServiceImpl;
+import com.example.btcposition.service.VotedValidation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import com.example.btcposition.service.VoteService;
-import com.example.btcposition.service.RedisService;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,20 +28,17 @@ public class MainController {
 
     private final VoteService voteService;
 
-    private final RedisService redisService;
-
-    private final JwtTokenUtil jwtTokenUtil;
+    private final RedisServiceImpl redisService;
 
 
     @PostMapping("/vote/{value}")
+    @VotedValidation
     public ResponseEntity<?> vote(@PathVariable @NotBlank String value,
             HttpServletRequest request) {
 
-        validateVote(request);
+        redisService.processVote(value);
 
-        processVote(value);
-
-        JwtResponse jwtResponse = generateJwtResponse(request);
+        JwtResponse jwtResponse = voteService.generateJwtResponse(request);
 
         return ResponseEntity.ok(jwtResponse);
 
@@ -62,7 +49,7 @@ public class MainController {
 
     @GetMapping("/results")
     public ResponseEntity<List<Vote>> getResults() {
-        List<Vote> voteResults = redisService.getVoteResultsV2();
+        List<Vote> voteResults = redisService.getVoteResultV2();
         return ResponseEntity.ok(voteResults);
     }
 
@@ -70,111 +57,40 @@ public class MainController {
     @GetMapping("/dailyResults")
     public ResponseEntity<?> getDailyResults(@RequestParam String month) {
 
-           System.out.println("month = " + month);
-
-            LocalDate date = LocalDate.parse(month + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            System.out.println("date = " + date);
-            List<DailyResultDto> dailyResults = voteService.findDailyResult(date);
-            System.out.println("dailyResults = " + dailyResults);
-            return new ResponseEntity<>(dailyResults, HttpStatus.OK);
-    }
-
-
-    @PostMapping("/token")
-    public ResponseEntity<?> generateToken(
-            @RequestBody Map<String, List<Map<String, Object>>> body) {
-
-        String hash = getHash(body);
-
-        //  getValidate 에서 , redis내부에서 해당 hash값이 존재하면
-        if (redisService.isExist(hash)) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // 존재하지 않을시 -> 토큰발급 후 , 해당 해시값 redis에 저장 .
-        redisService.setValidate(hash);
-
-        String username = generateRandomUsername();
-        String token = jwtTokenUtil.generateToken(username);
-
-        // 객체에 Getter 없을시 , not accept 406오류.
-
-        return ResponseEntity.ok(new JwtResponse(token, username));
-
-    }
-
-    @PostMapping("/validateToken")
-    public ResponseEntity<?> validateToken(HttpServletRequest request) {
-
-        if (jwtTokenUtil.isTokenExpired(request)) {
-            throw new JWTException("토큰이 만료되었습니다");
-        }
-        return ResponseEntity.ok(true);
-    }
-
-    @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshToken(
-            @RequestBody Map<String, List<Map<String, Object>>> body) {
-
-        String hash = getHash(body);
-
-        redisService.setValidate(hash);
-
-        String username = generateRandomUsername();
-        String token = jwtTokenUtil.generateToken(username);
-
-        return ResponseEntity.ok(new JwtResponse(token, username));
-    }
-
-    private void validateVote(HttpServletRequest request) {
-        if (jwtTokenUtil.isVoted(request)) {
-            throw new AlreadyVotedException();
-        }
-    }
-
-    private void processVote(String value) {
-        try {
-            redisService.setVoteResultV2(value);
-        } catch (Exception e) {
-            throw new RedisCommunicationException(e);
-        }
-    }
-
-    private JwtResponse generateJwtResponse(HttpServletRequest request) {
-        String jwtToken = jwtTokenUtil.getUpdatedToken(request);
-        String username = jwtTokenUtil.getUsernameFromToken(request);
-        return new JwtResponse(jwtToken, username);
-    }
-
-
-    private static String getHash(Map<String, List<Map<String, Object>>> body) {
-        List<Map<String, Object>> fingerprint = body.get("fingerprint");
-
-        String collect = fingerprint.stream().map(
-                data -> (String) data.values().stream().findFirst().orElse("")
-        ).collect(Collectors.joining());
-
-        String hash = DigestUtils.sha256Hex(collect);
-        return hash;
-    }
-
-    // 토큰이 만료되더라도 , 리프레시 토큰이라도 , 해당 해시값이 존재한다면 리프레시 불가. 중복토큰 발급불가.
-
-    //토큰 00:00:00 만료 , hash 00:00:00 만료.
-    //리프레시 하는 시점에서는 ( 토큰이 만료된 00:00:00이후 , hash 는 무조건 존재하지 않는다 , 검증필요업고 그냥 발행한다  )
-
-    @Scheduled(cron = "0 */3 * * * *")
-    public void synRedisWithMysql() {
-
-
-    }
-
-    private String generateRandomUsername() {
-        return UUID.randomUUID().toString().replace("-", "");
+        LocalDate date = LocalDate.parse(month + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        List<DailyResultDto> dailyResults = voteService.findDailyResult(date);
+        return new ResponseEntity<>(dailyResults, HttpStatus.OK);
     }
 
 
 }
+
+//    private String generateRandomUsername() {
+//        return UUID.randomUUID().toString().replace("-", "");
+//    }
+//
+
+//        validateVote(request);
+
+//        if (jwtTokenUtil.isVoted(request)) {
+//            throw new AlreadyVotedException();
+//        }
+
+//        processVote(value);
+
+//    private void validateVote(HttpServletRequest request) {
+//        if (jwtTokenUtil.isVoted(request)) {
+//            throw new AlreadyVotedException();
+//        }
+//    }
+
+//    private void processVote(String value) {
+//        try {
+//            redisService.processVote(value);
+//        } catch (Exception e) {
+//            throw new RedisCommunicationException(e);
+//        }
+//    }
 
 //@GetMapping("/checkVoted")
 //    public ResponseEntity<?> isVoted(HttpServletRequest request) {

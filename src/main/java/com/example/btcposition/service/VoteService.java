@@ -1,17 +1,18 @@
 package com.example.btcposition.service;
 
+import com.example.btcposition.JwtResponse;
+import com.example.btcposition.JwtTokenUtil;
 import com.example.btcposition.domain.DailyResultDto;
 import com.example.btcposition.domain.Vote;
 import com.example.btcposition.domain.VoteSummary;
 import com.example.btcposition.domain.VoteType;
 import com.example.btcposition.reposiotry.VoteRepository;
 import com.example.btcposition.reposiotry.VoteSummaryRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,15 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final VoteSummaryRepository voteSummaryRepository;
 
+    private final JwtTokenUtil jwtTokenUtil;
+
+
+
+    public JwtResponse generateJwtResponse(HttpServletRequest request) {
+        String jwtToken = jwtTokenUtil.getUpdatedToken(request);
+        String username = jwtTokenUtil.getUsernameFromToken(request);
+        return new JwtResponse(jwtToken, username);
+    }
 
 
     public Vote getVote(VoteType value) {
@@ -40,7 +50,7 @@ public class VoteService {
     public void updateVote(List<Vote> votes) {
 
         for (Vote vote : votes) {
-            System.out.println("vote = " + vote.getValue()+ vote.getCount());
+            System.out.println("vote = " + vote.getValue() + vote.getCount());
             voteRepository.updateVoteCount(vote.getValue(), vote.getCount());
         }
     }
@@ -60,10 +70,9 @@ public class VoteService {
         List<VoteSummary> voteSummaries = voteSummaryRepository.findAllByDate(startDate,
                 endDate);
 
-
         System.out.println("voteSummaries = " + voteSummaries);
 
-       return voteSummaries.stream().map(
+        return voteSummaries.stream().map(
                 result -> {
                     System.out.println("result.getLongCount() = " + result.getLongCount());
                     return DailyResultDto.create(result);
@@ -95,8 +104,6 @@ public class VoteService {
         voteRepository.updateVoteCount(VoteType.SHORT, 0);
 
     }
-
-
 
 
 }
