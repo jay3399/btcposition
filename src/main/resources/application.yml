@@ -26,3 +26,6 @@ spring:
 jwt:
   secret: 6ouCAVlTs2RpGKctFeqtKDC3IzQfIuNSZogfQuGYgvo
 
+
+server:
+  address: 0.0.0.0
