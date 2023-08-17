@@ -1,11 +1,6 @@
 package com.example.btcposition.exception;
 
 import com.example.btcposition.dto.ErrorResponse;
-import com.example.btcposition.exception.AlreadyHashException;
-import com.example.btcposition.exception.AlreadyVotedException;
-import com.example.btcposition.exception.JWTException;
-import com.example.btcposition.exception.RedisCommunicationException;
-import com.example.btcposition.exception.ScheduledTaskException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,8 +50,4 @@ public class GlobalExceptionHandler {
 
 
 }
-
-//        log.error("Already voted exception:", e);
-//        ErrorResponse response = ErrorResponse.create(e, HttpStatus.FORBIDDEN.value());
-//        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
 

@@ -22,7 +22,6 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final VoteSummaryRepository voteSummaryRepository;
-
     private final JwtTokenUtil jwtTokenUtil;
 
 

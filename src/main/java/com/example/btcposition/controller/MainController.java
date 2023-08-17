@@ -41,10 +41,8 @@ public class MainController {
 
         return ResponseEntity.ok(jwtResponse);
 
-//    컨트롤러단에서 token을 받아서 보내주는것보다 ,requset를 보내서 token을 내부적으로 사용하는 Util 클래스에서 만들도록 하는게 더 응집성에 맘ㅈ다.
     }
 
-//
 
     @GetMapping("/results")
     public ResponseEntity<List<Vote>> getResults() {

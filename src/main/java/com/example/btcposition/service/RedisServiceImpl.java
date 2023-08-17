@@ -21,18 +21,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RedisServiceImpl implements VoteRedisService, HashRedisService {
 
-    //ISP
-    //클라이언트가 사용하지않는 메서드에 의존하지 않아야한다.
-
-    //예외처리로직 , Controller to Service
-
-    // try catch 가독성개선 with 함수형인터페이스
-
-    // Callable 의 Call 메서드는 값을 반환한다 <-> Runnable  but 체크예외를 던진다
-    // Function 명시적으로 input 을 넣을수있고 , 체크예외를 안던져도 괜찮다 , 하지만 반환값을 던져야한다
-    // Consumer 는 소모만하고 값을 반환하지 않는다.
-
-
     private final RedisTemplate redisTemplate;
 
     public static final String HASH_PREFIX = "hash:";
@@ -47,7 +35,6 @@ public class RedisServiceImpl implements VoteRedisService, HashRedisService {
         if (value != null) {
             throw new AlreadyHashException();
         }
-
 
     }
 
@@ -126,6 +113,19 @@ public class RedisServiceImpl implements VoteRedisService, HashRedisService {
         }
     }
 }
+
+
+//ISP
+//클라이언트가 사용하지않는 메서드에 의존하지 않아야한다.
+
+//예외처리로직 , Controller to Service
+
+// try catch 가독성개선 with 함수형인터페이스
+
+// Callable 의 Call 메서드는 값을 반환한다 <-> Runnable  but 체크예외를 던진다
+// Function 명시적으로 input 을 넣을수있고 , 체크예외를 안던져도 괜찮다 , 하지만 반환값을 던져야한다
+// Consumer 는 소모만하고 값을 반환하지 않는다.
+
 
 //    체크예외를 던져야한다
 //    private <T> T executeWithRedis(Callable<T> callable) throws Exception {

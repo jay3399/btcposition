@@ -95,28 +95,6 @@ public class JwtTokenUtil {
 
 }
 
-
-//    public boolean isVotedV2(HttpServletRequest request) {
-//
-//        String token = extractToken(request);
-//
-//        boolean isVoted = false;
-//
-//        try {
-//            isVoted = (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
-//                    .get("voted");
-//        } catch (JwtException e) {
-//            throw new JWTException("파싱중 오류가 발생했습니다");
-//        }
-//
-//        if (!isVoted) {
-//            throw new AlreadyVotedException();
-//        }
-//
-//        return isVoted;
-//
-//    }
-
     public Boolean isTokenExpired(HttpServletRequest request) {
 
         String token = extractToken(request);
@@ -175,3 +153,29 @@ public class JwtTokenUtil {
 
 
 }
+
+
+
+
+
+//    public boolean isVotedV2(HttpServletRequest request) {
+//
+//        String token = extractToken(request);
+//
+//        boolean isVoted = false;
+//
+//        try {
+//            isVoted = (boolean) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
+//                    .get("voted");
+//        } catch (JwtException e) {
+//            throw new JWTException("파싱중 오류가 발생했습니다");
+//        }
+//
+//        if (!isVoted) {
+//            throw new AlreadyVotedException();
+//        }
+//
+//        return isVoted;
+//
+//    }
+
