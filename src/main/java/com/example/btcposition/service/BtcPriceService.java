@@ -1,7 +1,7 @@
 package com.example.btcposition.service;
 
 
-import com.example.btcposition.domain.BtcPriceResponse;
+import com.example.btcposition.dto.BtcPriceResponse;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;

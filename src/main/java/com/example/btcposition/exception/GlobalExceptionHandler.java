@@ -1,6 +1,6 @@
-package com.example.btcposition;
+package com.example.btcposition.exception;
 
-import com.example.btcposition.domain.ErrorResponse;
+import com.example.btcposition.dto.ErrorResponse;
 import com.example.btcposition.exception.AlreadyHashException;
 import com.example.btcposition.exception.AlreadyVotedException;
 import com.example.btcposition.exception.JWTException;

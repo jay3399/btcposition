@@ -1,9 +1,8 @@
-package com.example.btcposition.domain;
+package com.example.btcposition.dto;
 
+import com.example.btcposition.domain.VoteSummary;
 import java.time.LocalDate;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Getter
 public class DailyResultDto {

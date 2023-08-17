@@ -1,4 +1,4 @@
-package com.example.btcposition.domain;
+package com.example.btcposition.dto;
 
 import lombok.Getter;
 import lombok.Setter;

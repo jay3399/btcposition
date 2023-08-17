@@ -1,10 +1,10 @@
 package com.example.btcposition.controller;
 
-import com.example.btcposition.domain.DailyResultDto;
-import com.example.btcposition.JwtResponse;
+import com.example.btcposition.dto.DailyResultDto;
+import com.example.btcposition.dto.JwtResponse;
 import com.example.btcposition.domain.Vote;
 import com.example.btcposition.service.RedisServiceImpl;
-import com.example.btcposition.service.VotedValidation;
+import com.example.btcposition.aspect.VotedValidation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
@@ -13,7 +13,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

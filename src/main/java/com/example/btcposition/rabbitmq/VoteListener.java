@@ -1,7 +1,9 @@
-package com.example.btcposition.service;
+package com.example.btcposition.rabbitmq;
 
 import com.example.btcposition.domain.Vote;
 import com.example.btcposition.exception.ScheduledTaskException;
+import com.example.btcposition.service.RedisService;
+import com.example.btcposition.service.VoteService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

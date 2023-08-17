@@ -1,6 +1,6 @@
 package com.example.btcposition.controller;
 
-import com.example.btcposition.JwtResponse;
+import com.example.btcposition.dto.JwtResponse;
 import com.example.btcposition.JwtTokenUtil;
 import com.example.btcposition.exception.JWTException;
 import com.example.btcposition.service.RedisServiceImpl;

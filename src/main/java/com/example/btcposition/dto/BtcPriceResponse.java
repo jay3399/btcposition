@@ -1,4 +1,4 @@
-package com.example.btcposition.domain;
+package com.example.btcposition.dto;
 
 import java.util.HashMap;
 import java.util.Map;

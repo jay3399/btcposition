@@ -1,8 +1,8 @@
 package com.example.btcposition.service;
 
-import com.example.btcposition.JwtResponse;
+import com.example.btcposition.dto.JwtResponse;
 import com.example.btcposition.JwtTokenUtil;
-import com.example.btcposition.domain.DailyResultDto;
+import com.example.btcposition.dto.DailyResultDto;
 import com.example.btcposition.domain.Vote;
 import com.example.btcposition.domain.VoteSummary;
 import com.example.btcposition.domain.VoteType;

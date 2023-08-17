@@ -1,4 +1,4 @@
-package com.example.btcposition;
+package com.example.btcposition.dto;
 
 
 import lombok.Getter;

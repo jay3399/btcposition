@@ -1,4 +1,4 @@
-package com.example.btcposition.service;
+package com.example.btcposition.aspect;
 
 import com.example.btcposition.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +17,7 @@ public class VotedValidationAspect {
 
     private final JwtTokenUtil jwtTokenUtil;
 
-    @Before("@annotation(VotedValidation)")
+    @Before("@annotation(com.example.btcposition.aspect.VotedValidation)")
     public void validation(JoinPoint joinPoint) {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         jwtTokenUtil.isVoted(request);
