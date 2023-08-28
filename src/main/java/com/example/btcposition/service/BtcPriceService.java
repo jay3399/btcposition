@@ -28,5 +28,10 @@ public class BtcPriceService implements BtcPriceProvider {
 
     }
 
+    public BigDecimal getBtcPriceSync() throws URISyntaxException {
+        return getBtcPrice().block();
+    }
+
+
 
 }

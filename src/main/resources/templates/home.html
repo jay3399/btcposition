@@ -254,13 +254,43 @@
     // 데이터 행 생성
     data.forEach((result) => {
       const row = document.createElement("tr");
-      [result.date, result.longCount, result.shortCount].forEach((text) => {
-        const td = document.createElement("td");
-        td.style.border = "1px solid black";
-        td.style.padding = "8px";
-        td.textContent = text;
-        row.appendChild(td);
-      });
+
+      let longId, shortId;
+      [result.date , result.longCount , result.shortCount].forEach(
+          (text , index) => {
+            let td = document.createElement("td");
+
+            td.style.border = "1px solid black";
+            td.style.padding = "8px";
+            td.textContent = text
+
+            if( index ===1) longId = td;
+            if( index ===2) shortId = td;
+
+            row.appendChild(td);
+          }
+      )
+
+
+      if (result.voteType === "LONG") {
+        longId.style.fontWeight = "bold";
+        longId.style.color = "pink";
+
+      } else if (result.voteType === "SHORT") {
+        longId.style.fontWeight = "bold";
+        longId.style.color = "red";
+      }
+
+
+
+      //
+      // [result.date, result.longCount, result.shortCount].forEach((text) => {
+      //   const td = document.createElement("td");
+      //   td.style.border = "1px solid black";
+      //   td.style.padding = "8px";
+      //   td.textContent = text;
+      //   row.appendChild(td);
+      // });
       table.appendChild(row);
     });
 

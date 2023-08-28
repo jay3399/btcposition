@@ -9,12 +9,17 @@ import com.example.btcposition.domain.VoteType;
 import com.example.btcposition.reposiotry.VoteRepository;
 import com.example.btcposition.reposiotry.VoteSummaryRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final VoteSummaryRepository voteSummaryRepository;
     private final JwtTokenUtil jwtTokenUtil;
+    private final BtcPriceProvider btcPriceProvider;
 
 
 
@@ -83,22 +89,22 @@ public class VoteService {
 
 
     @Transactional
-    public void summarizeVotes() {
+    public void summarizeVotes() throws Exception {
 
-        LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDate now = LocalDate.now();
-
         long longCount = voteRepository.getCount(VoteType.LONG);
         long shortCount = voteRepository.getCount(VoteType.SHORT);
 
-        System.out.println("shortCount = " + shortCount);
-        System.out.println("longCount = " + longCount);
+        Optional<BigDecimal> price = voteSummaryRepository.findByDate(now.minusDays(1));
 
-        VoteSummary voteSummary = VoteSummary.create(now, longCount, shortCount);
+        BigDecimal startPrice = price.orElse(new BigDecimal("20000"));
+
+        VoteSummary voteSummary = VoteSummary.create(now, longCount, shortCount, startPrice,
+                btcPriceProvider.getBtcPriceSync());
 
         voteSummaryRepository.save(voteSummary);
 
-//        voteRepository.deleteByVoteDate(now);
+
         voteRepository.updateVoteCount(VoteType.LONG, 0);
         voteRepository.updateVoteCount(VoteType.SHORT, 0);
 

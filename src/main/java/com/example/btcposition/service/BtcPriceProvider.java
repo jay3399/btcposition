@@ -8,4 +8,8 @@ public interface BtcPriceProvider {
 
     Mono<BigDecimal> getBtcPrice() throws URISyntaxException;
 
+    BigDecimal getBtcPriceSync() throws URISyntaxException;
+
+
+
 }

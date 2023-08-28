@@ -1,6 +1,7 @@
 package com.example.btcposition.dto;
 
 import com.example.btcposition.domain.VoteSummary;
+import com.example.btcposition.domain.VoteType;
 import java.time.LocalDate;
 import lombok.Getter;
 
@@ -13,10 +14,13 @@ public class DailyResultDto {
     private long shortCount;
     private long longCount;
 
+    private VoteType voteType;
+
     private void set(VoteSummary voteSummary) {
         this.shortCount = voteSummary.getShortCount();
         this.longCount = voteSummary.getLongCount();
         this.date = voteSummary.getDate();
+        this.voteType = voteSummary.getWinningVoteType();
     }
 
 
