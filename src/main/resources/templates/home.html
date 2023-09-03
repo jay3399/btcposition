@@ -142,7 +142,7 @@
   <h3>현재 비트코인 가격: <span id="btcPrice">로딩 중...</span></h3>
 </div>
 <div class="container">
-  <div class="option">
+  <div class="option">딩
     <h3>롱</h3>
     <button onclick="getFingerprint('long')">투표하기</button>
   </div>
@@ -183,11 +183,9 @@
 </div>
 
 
-
-
-<script
-    src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script><script>
 
   // document.addEventListener("DOMContentLoaded", function() {
   //   flatpickr("#monthPicker", {
@@ -442,20 +440,34 @@
 
   updateVotes();
 
-  function fetchBitcoinPrice() {
-    fetch('/api/btc-price')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('btcPrice').textContent = data + ' USD';
-    })
-    .catch(error => {
-      console.error('비트코인 가격을 가져오는 데 실패했습니다.', error);
+  let socket = new SockJS("/btc-price");
+
+  let stompClient = Stomp.over(socket);
+
+  stompClient.connect({} ,
+  function (frame) {
+    stompClient.subscribe('/topic/btc-price', function (message) {
+      document.getElementById('btcPrice').textContent = JSON.parse(message.body).price + ' USD';
     });
-  }
+  })
 
-  fetchBitcoinPrice();
 
-  setInterval(fetchBitcoinPrice, 10000);
+
+
+  // function fetchBitcoinPrice() {
+  //   fetch('/api/btc-price')
+  //   .then(response => response.text())
+  //   .then(data => {
+  //     document.getElementById('btcPrice').textContent = data + ' USD';
+  //   })
+  //   .catch(error => {
+  //     console.error('비트코인 가격을 가져오는 데 실패했습니다.', error);
+  //   });
+  // }
+  //
+  // fetchBitcoinPrice();
+  //
+  // setInterval(fetchBitcoinPrice, 100000);
 
   // function vote(option , fingerprint) {
   //   // if (localStorage.getItem('voted')) {

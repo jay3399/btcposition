@@ -3,8 +3,10 @@ package com.example.btcposition.controller;
 import com.example.btcposition.service.BtcPriceProvider;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -13,19 +15,22 @@ import reactor.core.publisher.Mono;
 public class BtcPriceController {
 
     private final BtcPriceProvider btcPriceService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
+    @Scheduled(fixedRate = 60000)
+    public void getBtcPrice() throws URISyntaxException {
 
-    @GetMapping("/api/btc-price")
-    public Mono<BigDecimal> getBtcPrice() throws URISyntaxException {
+        btcPriceService.getBtcPrice().subscribe(
+                btcPrice -> {
+                    simpMessagingTemplate.convertAndSend("/topic/btc-price",
+                            Map.of("price", btcPrice.toString()));
+                }
+        );
 
-        Mono<BigDecimal> btcPrice = btcPriceService.getBtcPrice();
 
-
-        return btcPrice;
 
     }
-
 
 
 }
