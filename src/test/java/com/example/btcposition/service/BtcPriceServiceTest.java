@@ -4,7 +4,7 @@
 //import static org.mockito.ArgumentMatchers.any;
 //import static org.mockito.Mockito.when;
 //
-//import com.example.btcposition.dto.BtcPriceResponse;
+//import com.example.btcposition.response.BtcPriceResponse;
 //import java.math.BigDecimal;
 //import java.net.URI;
 //import java.net.URISyntaxException;

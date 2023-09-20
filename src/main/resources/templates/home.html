@@ -185,7 +185,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
+<script>
 
   // document.addEventListener("DOMContentLoaded", function() {
   //   flatpickr("#monthPicker", {
@@ -279,34 +280,12 @@
         longId.style.color = "red";
       }
 
-
-
-      //
-      // [result.date, result.longCount, result.shortCount].forEach((text) => {
-      //   const td = document.createElement("td");
-      //   td.style.border = "1px solid black";
-      //   td.style.padding = "8px";
-      //   td.textContent = text;
-      //   row.appendChild(td);
-      // });
       table.appendChild(row);
     });
 
     dailyResultsContainer.appendChild(table);
 
 
-
-
-
-    // data.forEach(
-    //     (result) => {
-    //       const resultDiv =  document.createElement("div");
-    //       resultDiv.innerHTML =
-    //           `<h4>${result.date}</h4>\n`
-    //           +`<p>롱 포지션: ${result.longCount} / 숏 포지션: ${result.shortCount}</p>`;
-    //
-    //       dailyResultsContainer.appendChild(resultDiv);
-    //     });
   }
 
 
@@ -322,6 +301,8 @@
     });
   }
 
+
+//투표 결과 업데이트
   function updateVotes() {
 
     const VoteType = {
@@ -361,6 +342,8 @@
     });
   }
 
+
+  // 투표하기전 검증
   async function vote(option, fingerprint) {
     const jwtToken = localStorage.getItem("jwtToken");
 
@@ -377,7 +360,9 @@
         }
 
         const data = await response.json();
+
         localStorage.setItem('jwtToken', data.token);
+
         await submitVote(option);
       } else {   // 토큰 이미 존재할시 , 토큰 검증로직! 엔드포인트 추가후 검증 완료후 토큰 담고 투표요청 , 검증실패(만료)시 refresh토큰 요청후 토큰담고 투표요청
         const response = await fetch('/validateToken',
@@ -413,6 +398,8 @@
     }
   }
 
+
+  // 투표 제출
   async function submitVote(option) {
     const url = option === 'long' ? '/vote/long' : '/vote/short';
 
@@ -452,104 +439,6 @@
   })
 
 
-
-
-  // function fetchBitcoinPrice() {
-  //   fetch('/api/btc-price')
-  //   .then(response => response.text())
-  //   .then(data => {
-  //     document.getElementById('btcPrice').textContent = data + ' USD';
-  //   })
-  //   .catch(error => {
-  //     console.error('비트코인 가격을 가져오는 데 실패했습니다.', error);
-  //   });
-  // }
-  //
-  // fetchBitcoinPrice();
-  //
-  // setInterval(fetchBitcoinPrice, 100000);
-
-  // function vote(option , fingerprint) {
-  //   // if (localStorage.getItem('voted')) {
-  //   //   console.log('이미 투표한 사용자입니다');
-  //   //   return;
-  //   // }
-  //
-  //   // 최초 사용자일 경우, 서버에서 JWT 토큰을 받아온 뒤 localStorage에 저장
-  //   const jwtToken = localStorage.getItem("jwtToken");
-  //
-  //   if (!jwtToken) {
-  //     fetch('/token',
-  //         {
-  //           method: 'POST', headers: {'Content-Type': 'application/json'},
-  //           body: JSON.stringify({fingerprint: fingerprint})
-  //         }
-  //     ) // 적절한 엔드포인트로 요청하여 JWT 토큰을 받아옴
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         console.log("이미 토큰을 발행하였습니다");
-  //         throw new Error('서버 오류가 발생했습니다.');
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(data => {
-  //       localStorage.setItem('jwtToken', data.token); // JWT 토큰을 localStorage에 저장
-  //       submitVote(option); // 투표 요청 함수 호출
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //     });
-  //   } else {
-  //     fetch(
-  //         '/checkVoted' ,
-  //         {
-  //           headers: {'content-type': 'application/json', 'Authorization': 'Bearer ' + jwtToken}
-  //         }
-  //     ).then(
-  //         response =>{
-  //           if (!response.ok) throw new Error("이미 투표하였습니다");
-  //           submitVote(option , jwtToken)
-  //         }
-  //     )
-  //   }
-  // }
-  //
-  // function submitVote(option) {
-  //   const url = option === 'long' ? '/vote/long' : '/vote/short';
-  //
-  //   // 투표 요청 시 저장된 JWT 토큰을 함께 보냄
-  //   fetch(url, {
-  //     method: 'POST',
-  //     headers: {
-  //       'content-type': 'application/json',
-  //       'Authorization': 'Bearer ' + localStorage.getItem("jwtToken"),
-  //     },
-  //   })
-  //   .then(response => {
-  //     if (!response.ok) {
-  //       throw new Error('서버 오류발생');
-  //     }
-  //     return response.json();
-  //   })
-  //   .then(data => {
-  //     localStorage.setItem('jwtToken', data.token); // 새로운 JWT 토큰을 받아와서 저장
-  //   })
-  //   .catch(error => {
-  //     console.error(error);
-  //   })
-  //   .finally(() => {
-  //     updateVotes();
-  //   });
-  // }
-  //
-  // if (localStorage.getItem('voted')) {
-  //   console.log('이미 투표한 사용자입니다');
-  // }
-  //
-  // updateVotes();
-  //
-  //
-  //
 
 
 </script>

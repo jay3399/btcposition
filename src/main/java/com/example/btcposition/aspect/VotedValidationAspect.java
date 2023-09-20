@@ -1,6 +1,6 @@
 package com.example.btcposition.aspect;
 
-import com.example.btcposition.JwtTokenUtil;
+import com.example.btcposition.infrastructure.util.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;

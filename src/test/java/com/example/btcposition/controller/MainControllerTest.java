@@ -11,10 +11,10 @@
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 //
-//import com.example.btcposition.JwtTokenUtil;
-//import com.example.btcposition.reposiotry.VoteRepository;
+//import com.example.btcposition.infrastructure.util.JwtTokenUtil;
+//import com.example.btcposition.domain.vote.repository.VoteRepository;
 //import com.example.btcposition.service.RedisService;
-//import com.example.btcposition.service.VoteService;
+//import com.example.btcposition.domain.vote.service.VoteService;
 //import jakarta.servlet.http.HttpServletRequest;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;

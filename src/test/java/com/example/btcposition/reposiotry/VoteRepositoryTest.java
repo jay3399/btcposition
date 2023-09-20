@@ -2,9 +2,11 @@ package com.example.btcposition.reposiotry;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.example.btcposition.domain.Vote;
-import com.example.btcposition.domain.VoteSummary;
-import com.example.btcposition.domain.VoteType;
+import com.example.btcposition.domain.vote.model.Vote;
+import com.example.btcposition.domain.voteSummary.model.VoteSummary;
+import com.example.btcposition.domain.vote.model.VoteType;
+import com.example.btcposition.domain.vote.repository.VoteRepository;
+import com.example.btcposition.domain.voteSummary.reposiotry.VoteSummaryRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @DataJpaTest // 별도 트렌젝셔널 설정 필요없다 + 자동 롤백

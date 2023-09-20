@@ -1,11 +1,11 @@
 //package com.example.btcposition.service;
 //
-//import static com.example.btcposition.domain.VoteType.*;
+//import static com.example.btcposition.domain.vote.model.VoteType.*;
 //import static org.junit.jupiter.api.Assertions.*;
 //
-//import com.example.btcposition.domain.Vote;
-//import com.example.btcposition.domain.VoteSummary;
-//import com.example.btcposition.domain.VoteType;
+//import com.example.btcposition.domain.vote.model.Vote;
+//import com.example.btcposition.domain.voteSummary.model.VoteSummary;
+//import com.example.btcposition.domain.vote.model.VoteType;
 //import com.example.btcposition.reposiotry.VoteSummaryRepository;
 //import java.time.LocalDate;
 //import java.time.format.DateTimeFormatter;
@@ -19,7 +19,7 @@
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 //import org.springframework.boot.test.context.SpringBootTest;
-//import com.example.btcposition.reposiotry.VoteRepository;
+//import com.example.btcposition.domain.vote.repository.VoteRepository;
 //import org.springframework.boot.test.mock.mockito.MockBean;
 //import org.springframework.transaction.annotation.Transactional;
 //
