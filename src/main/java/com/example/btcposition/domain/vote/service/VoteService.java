@@ -1,15 +1,13 @@
 package com.example.btcposition.domain.vote.service;
 
-import com.example.btcposition.application.ui.response.JwtResponse;
-import com.example.btcposition.infrastructure.util.JwtTokenUtil;
-import com.example.btcposition.domain.voteSummary.model.DailyResultDto;
+import com.example.btcposition.domain.vote.model.VoteDTO;
+import com.example.btcposition.domain.votesummary.model.DailyResultDto;
 import com.example.btcposition.domain.vote.model.Vote;
-import com.example.btcposition.domain.voteSummary.model.VoteSummary;
+import com.example.btcposition.domain.votesummary.model.VoteSummary;
 import com.example.btcposition.domain.vote.model.VoteType;
 import com.example.btcposition.domain.vote.repository.VoteRepository;
-import com.example.btcposition.domain.voteSummary.reposiotry.VoteSummaryRepository;
-import com.example.btcposition.infrastructure.BtcPriceProvider;
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.btcposition.domain.votesummary.reposiotry.VoteSummaryRepository;
+import com.example.btcposition.infrastructure.api.BtcPriceProvider;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,22 +23,8 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final VoteSummaryRepository voteSummaryRepository;
-    private final JwtTokenUtil jwtTokenUtil;
     private final BtcPriceProvider btcPriceProvider;
 
-
-
-    public JwtResponse generateJwtResponse(HttpServletRequest request) {
-        String jwtToken = jwtTokenUtil.getUpdatedToken(request);
-        String username = jwtTokenUtil.getUsernameFromToken(request);
-        return new JwtResponse(jwtToken, username);
-    }
-
-
-    public Vote getVote(VoteType value) {
-        return voteRepository.findByValue(value);
-
-    }
 
     @Transactional
     public void saveVote(Vote vote) {
@@ -50,10 +34,9 @@ public class VoteService {
     }
 
     @Transactional
-    public void updateVote(List<Vote> votes) {
+    public void updateVote(List<VoteDTO> votes) {
 
-        for (Vote vote : votes) {
-            System.out.println("vote = " + vote.getValue() + vote.getCount());
+        for (VoteDTO vote : votes) {
             voteRepository.updateVoteCount(vote.getValue(), vote.getCount());
         }
     }
@@ -65,22 +48,14 @@ public class VoteService {
     }
 
     public List<DailyResultDto> findDailyResult(LocalDate date) {
+
         LocalDate startDate = date.withDayOfMonth(1);
         LocalDate endDate = date.withDayOfMonth(date.lengthOfMonth());
-        System.out.println("endDate = " + endDate);
-        System.out.println("startDate = " + startDate);
 
-        List<VoteSummary> voteSummaries = voteSummaryRepository.findAllByDate(startDate,
-                endDate);
-
-        System.out.println("voteSummaries = " + voteSummaries);
+        List<VoteSummary> voteSummaries = voteSummaryRepository.findAllByDate(startDate, endDate);
 
         return voteSummaries.stream().map(
-                result -> {
-                    System.out.println("result.getLongCount() = " + result.getLongCount());
-                    return DailyResultDto.create(result);
-                }
-
+                (result) -> DailyResultDto.create(result)
         ).collect(Collectors.toList());
 
     }
@@ -90,6 +65,7 @@ public class VoteService {
     public void summarizeVotes() throws Exception {
 
         LocalDate now = LocalDate.now();
+
         long longCount = voteRepository.getCount(VoteType.LONG);
         long shortCount = voteRepository.getCount(VoteType.SHORT);
 
@@ -97,8 +73,7 @@ public class VoteService {
 
         BigDecimal startPrice = price.orElse(new BigDecimal("20000"));
 
-        VoteSummary voteSummary = VoteSummary.create(now, longCount, shortCount, startPrice,
-                btcPriceProvider.getBtcPriceSync());
+        VoteSummary voteSummary = VoteSummary.create(now, longCount, shortCount, startPrice, btcPriceProvider.getBtcPriceSync());
 
         voteSummaryRepository.save(voteSummary);
 

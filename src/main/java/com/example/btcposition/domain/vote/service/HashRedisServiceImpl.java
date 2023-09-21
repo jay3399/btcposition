@@ -19,7 +19,6 @@ public class HashRedisServiceImpl implements HashRedisService {
     private final RedisTemplate redisTemplate;
 
     public static final String HASH_PREFIX = "hash:";
-    public static final String VOTE_KEY_PREFIX = "vote:";
 
     @Override
     public void isExist(String hash) throws Exception {

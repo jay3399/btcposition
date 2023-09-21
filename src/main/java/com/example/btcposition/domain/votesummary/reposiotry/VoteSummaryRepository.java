@@ -1,6 +1,6 @@
-package com.example.btcposition.domain.voteSummary.reposiotry;
+package com.example.btcposition.domain.votesummary.reposiotry;
 
-import com.example.btcposition.domain.voteSummary.model.VoteSummary;
+import com.example.btcposition.domain.votesummary.model.VoteSummary;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;

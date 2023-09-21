@@ -1,6 +1,6 @@
 package com.example.btcposition.application.ui.controller;
 
-import com.example.btcposition.infrastructure.BtcPriceProvider;
+import com.example.btcposition.infrastructure.api.BtcPriceProvider;
 import java.net.URISyntaxException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

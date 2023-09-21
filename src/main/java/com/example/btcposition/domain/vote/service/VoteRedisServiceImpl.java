@@ -1,11 +1,8 @@
 package com.example.btcposition.domain.vote.service;
 
-import com.example.btcposition.domain.vote.model.Vote;
 import com.example.btcposition.domain.vote.model.VoteType;
 import com.example.btcposition.exception.RedisCommunicationException;
 import com.example.btcposition.domain.vote.service.interfaces.VoteRedisService;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,25 +17,16 @@ public class VoteRedisServiceImpl implements VoteRedisService {
 
     private final RedisTemplate redisTemplate;
 
-    public static final String HASH_PREFIX = "hash:";
     public static final String VOTE_KEY_PREFIX = "vote:";
 
 
-    @Override
-    public List<Vote> getVoteResultV2() {
-        List<Vote> voteResults = new ArrayList<>();
 
-        for (VoteType voteType : VoteType.values()) {
-            addVoteResult(voteResults, voteType);
-        }
-
-        return voteResults;
-    }
+    // 인프라는 오직 redis 와 통신하는 부분만을 담당한다, 도메인로직과 섞이면 안된다 .
+    // 생성은 응용계
 
     @Override
-    public void processVote(String voteValue) {
+    public void processVote(VoteType voteType) {
 
-        VoteType voteType = VoteType.fromString(voteValue);
 
         String value = VOTE_KEY_PREFIX + voteType.name();
 
@@ -62,18 +50,26 @@ public class VoteRedisServiceImpl implements VoteRedisService {
 
 
     }
+    public Integer getValueInRedis(VoteType voteType) {
 
-    private void addVoteResult(List<Vote> voteResults, VoteType voteType) {
+        try {
 
-        Integer value = executeWithRedis(key -> (Integer) redisTemplate.opsForValue().get(key),
-                VOTE_KEY_PREFIX + voteType.name());
+            Integer value = executeWithRedis(key -> (Integer) redisTemplate.opsForValue().get(key),
+                    VOTE_KEY_PREFIX + voteType.name());
 
-        if (value != null) {
-            Vote vote = new Vote(voteType, value);
-            voteResults.add(vote);
+            if (value == null) {
+                throw new NullPointerException("레디스에 값이 존재하지 않습니다" + VOTE_KEY_PREFIX + voteType.name());
+            }
+
+            return value;
+
+        } catch (DataAccessException e) {
+            throw new RedisCommunicationException(e);
         }
 
+
     }
+
 
     private <T, R> R executeWithRedis(Function<T, R> function, T input) {
         try {
@@ -91,3 +87,30 @@ public class VoteRedisServiceImpl implements VoteRedisService {
         }
     }
 }
+
+
+
+//    @Override
+//    public List<Vote> getVoteResultV2() {
+//        List<Vote> voteResults = new ArrayList<>();
+//
+//        for (VoteType voteType : VoteType.values()) {
+//            addVoteResult(voteResults, voteType);
+//        }
+//
+//        return voteResults;
+//    }
+
+//    private void addVoteResult(List<Vote> voteResults, VoteType voteType) {
+//
+//        //가져오는
+//        Integer value = executeWithRedis(key -> (Integer) redisTemplate.opsForValue().get(key),
+//                VOTE_KEY_PREFIX + voteType.name());
+//
+//        //생성하는
+//        if (value != null) {
+//            Vote vote = new Vote(voteType, value);
+//            voteResults.add(vote);
+//        }
+//
+//    }

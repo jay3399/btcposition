@@ -1,14 +1,16 @@
 package com.example.btcposition.application.ui.controller;
 
-import com.example.btcposition.domain.voteSummary.model.DailyResultDto;
+import com.example.btcposition.application.service.VoteApplicationService;
+import com.example.btcposition.domain.vote.model.VoteDTO;
+import com.example.btcposition.domain.vote.model.VoteType;
+import com.example.btcposition.domain.votesummary.model.DailyResultDto;
 import com.example.btcposition.application.ui.response.JwtResponse;
 import com.example.btcposition.domain.vote.model.Vote;
 import com.example.btcposition.aspect.VotedValidation;
 import com.example.btcposition.domain.vote.service.VoteRedisServiceImpl;
+import com.example.btcposition.infrastructure.util.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import com.example.btcposition.domain.vote.service.VoteService;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,27 +26,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MainController {
 
-    private final VoteService voteService;
 
-    private final VoteRedisServiceImpl redisService;
+    private final VoteApplicationService voteService;
+    private final JwtTokenUtil jwtTokenUtil;
 
 
+    // request <-> service 독립적이여야한다 , 의존x 컨트롤러는 오직 요청에대한 검증과 응답만한다.
     @PostMapping("/vote/{value}")
     @VotedValidation
     public ResponseEntity<?> vote(@PathVariable @NotBlank String value,
             HttpServletRequest request) {
 
-        redisService.processVote(value);
+        VoteType voteType = VoteType.fromString(value);
 
-        JwtResponse jwtResponse = voteService.generateJwtResponse(request);
+        voteService.vote(voteType);
+
+        JwtResponse jwtResponse = getJwtResponse(request);
 
         return ResponseEntity.ok(jwtResponse);
 
     }
 
     @GetMapping("/results")
-    public ResponseEntity<List<Vote>> getResults() {
-        List<Vote> voteResults = redisService.getVoteResultV2();
+    public ResponseEntity<List<VoteDTO>> getResults() {
+
+        List<VoteDTO> voteResults = voteService.getResult();
+
         return ResponseEntity.ok(voteResults);
     }
 
@@ -53,103 +59,19 @@ public class MainController {
     @GetMapping("/dailyResults")
     public ResponseEntity<?> getDailyResults(@RequestParam String month) {
 
-        LocalDate date = LocalDate.parse(month + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        List<DailyResultDto> dailyResults = voteService.findDailyResult(date);
+        List<DailyResultDto> dailyResults = voteService.findDailyResult(month);
+
         return new ResponseEntity<>(dailyResults, HttpStatus.OK);
+    }
+
+
+    private JwtResponse getJwtResponse(HttpServletRequest request) {
+        String jwtToken = jwtTokenUtil.getUpdatedToken(request);
+        String username = jwtTokenUtil.getUsernameFromToken(request);
+
+        return new JwtResponse(jwtToken, username);
     }
 
 
 }
 
-//    private String generateRandomUsername() {
-//        return UUID.randomUUID().toString().replace("-", "");
-//    }
-//
-
-//        validateVote(request);
-
-//        if (jwtTokenUtil.isVoted(request)) {
-//            throw new AlreadyVotedException();
-//        }
-
-//        processVote(value);
-
-//    private void validateVote(HttpServletRequest request) {
-//        if (jwtTokenUtil.isVoted(request)) {
-//            throw new AlreadyVotedException();
-//        }
-//    }
-
-//    private void processVote(String value) {
-//        try {
-//            redisService.processVote(value);
-//        } catch (Exception e) {
-//            throw new RedisCommunicationException(e);
-//        }
-//    }
-
-//@GetMapping("/checkVoted")
-//    public ResponseEntity<?> isVoted(HttpServletRequest request) {
-//
-//        if (jwtTokenUtil.isVoted(request)) {
-//            System.out.println("이미투표하였습니다");
-//            return ResponseEntity.badRequest().body("이미투표한사용자입니다");
-//        }
-//
-//        return ResponseEntity.ok(true);
-//    }
-
-//  @PostMapping("/position/vote/{value}")
-//  @ResponseBody
-//  public boolean getVote(@PathVariable String value) {
-//
-//    Vote vote = voteService.getVote(value);
-//
-//    if (vote == null) {
-//      vote = new Vote(value, 1);
-//    } else {
-//      vote.setCount(vote.getCount() + 1);
-//    }
-//
-//    System.out.println("vote = " + vote.getCount());
-//
-//
-//    voteService.saveVote(vote);
-//
-//    return true;
-//  }
-
-//  @PostMapping("/position/vote/{value}")
-//  @ResponseBody
-//  public ResponseEntity<?> getVoteWithJWT(@PathVariable String value , HttpServletRequest request) {
-//
-//
-//
-//    String username = jwtTokenUtil.getUsernameFromToken(request);
-//
-//    if (jwtTokenUtil.isVoted(request)) {
-//      System.out.println("이미투표하였습니다");
-//      return ResponseEntity.badRequest().body("이미투표한사용자입니다");
-//    }
-//
-//    Vote vote = voteService.getVote(value);
-//
-//    if (vote == null){ vote = new Vote(value, 1);}
-//    else{ vote.setCount(vote.getCount()+1);}
-//
-//
-//    // if .. 사용자가 localstroge에서 jwt 값을 삭제시에는 ? -> 다시 재발급후 투표가 가능하다..
-//    voteService.saveVote(vote);
-//
-//
-//    String jwtToken = jwtTokenUtil.generateToken(username);
-//
-//    return ResponseEntity.ok(new JwtResponse(jwtToken, username));
-//  }
-
-//  @GetMapping("/position/results")
-//  @ResponseBody
-//  public ResponseEntity<List<Vote>> getResults() {
-//    List<Vote> voteResults = voteService.findAll();
-//    return ResponseEntity.ok(voteResults);
-//  }

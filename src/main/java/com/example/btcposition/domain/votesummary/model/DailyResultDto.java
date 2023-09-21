@@ -1,4 +1,4 @@
-package com.example.btcposition.domain.voteSummary.model;
+package com.example.btcposition.domain.votesummary.model;
 
 import com.example.btcposition.domain.vote.model.VoteType;
 import java.time.LocalDate;

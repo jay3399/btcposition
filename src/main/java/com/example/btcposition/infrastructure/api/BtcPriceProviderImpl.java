@@ -1,4 +1,4 @@
-package com.example.btcposition.infrastructure;
+package com.example.btcposition.infrastructure.api;
 
 
 import com.example.btcposition.application.ui.response.BtcPriceResponse;

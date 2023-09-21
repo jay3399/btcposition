@@ -10,14 +10,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import java.time.LocalDate;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 @Entity
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EqualsAndHashCode
 public class Vote {
@@ -34,10 +35,6 @@ public class Vote {
     @Column(name = "vote_date")
     private LocalDate voteDate;
 
-    public Vote() {
-
-    }
-
     public Vote(VoteType value, int count) {
         this.value = value;
         this.count = count;
@@ -46,6 +43,11 @@ public class Vote {
     @PrePersist
     private void perPersist() {
         this.voteDate = LocalDate.now();
+    }
+
+    public static Vote create(VoteType value, int count) {
+        Vote vote = new Vote(value, count);
+        return vote;
     }
 
 

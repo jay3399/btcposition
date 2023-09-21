@@ -1,12 +1,12 @@
 package com.example.btcposition.domain.vote.service.interfaces;
 
 import com.example.btcposition.domain.vote.model.Vote;
+import com.example.btcposition.domain.vote.model.VoteType;
 import java.util.List;
 
 public interface VoteRedisService {
 
-    List<Vote> getVoteResultV2();
-    void processVote(String voteValue);
+    void processVote(VoteType voteType);
     void deleteKeysByPreFix();
 
 }
