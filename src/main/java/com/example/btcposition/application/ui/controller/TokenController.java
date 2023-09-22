@@ -1,6 +1,7 @@
 package com.example.btcposition.application.ui.controller;
 
 import com.example.btcposition.application.ui.response.JwtResponse;
+import com.example.btcposition.domain.vote.service.interfaces.HashRedisService;
 import com.example.btcposition.infrastructure.util.JwtTokenUtil;
 import com.example.btcposition.exception.JWTException;
 import com.example.btcposition.domain.vote.service.HashRedisServiceImpl;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TokenController {
 
-    private final HashRedisServiceImpl redisService;
+    private final HashRedisService redisService;
 
     private final JwtTokenUtil jwtTokenUtil;
 

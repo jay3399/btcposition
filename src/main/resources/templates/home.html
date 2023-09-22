@@ -134,7 +134,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
-  <!--  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>-->
 </head>
 <body>
 <h1>비트코인 롱/숏 투표</h1>
@@ -164,12 +163,7 @@
       <div id="longProgress" class="progress"></div>
     </div>
   </div>
-<!--  <div class="progress-container">-->
 
-<!--    <div class="progress-bar">-->
-<!--      <div id="shortProgress" class="progress"></div>-->
-<!--    </div>-->
-<!--  </div>-->
 </div>
 
 
@@ -188,13 +182,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/2.1.0/fingerprint2.min.js"></script>
 <script>
 
-  // document.addEventListener("DOMContentLoaded", function() {
-  //   flatpickr("#monthPicker", {
-  //     dateFormat: "Y-m",
-  //     monthSelectorType: "static",
-  //     plugins: [new monthSelectPlugin({shorthand: false})] // 월만 선택할 수 있게 만듭니다.
-  //   });
-  // });
 
   document.addEventListener("DOMContentLoaded", function() {
     const monthPicker = document.getElementById("monthPicker");
@@ -231,14 +218,12 @@
     dailyResultsContainer.innerHTML=""
 
 
-    // 테이블 생성
     const table = document.createElement("table");
     table.style.borderCollapse = "collapse";
     table.style.width = "50%";
     table.style.border = "1px solid black";
     table.style.margin = "auto";
 
-    // 헤더 행 생성
     const headerRow = document.createElement("tr");
     ["일자", "롱", "숏"].forEach((text) => {
       const th = document.createElement("th");

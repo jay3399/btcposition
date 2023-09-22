@@ -5,6 +5,7 @@ import com.example.btcposition.domain.vote.model.VoteDTO;
 import com.example.btcposition.domain.vote.model.VoteType;
 import com.example.btcposition.domain.vote.service.VoteRedisServiceImpl;
 import com.example.btcposition.domain.vote.service.VoteService;
+import com.example.btcposition.domain.vote.service.interfaces.VoteRedisService;
 import com.example.btcposition.domain.votesummary.model.DailyResultDto;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class VoteApplicationService {
 
     private final VoteService voteService;
-    private final VoteRedisServiceImpl redisService;
+    private final VoteRedisService redisService;
 
 
     public void vote( VoteType voteType) {

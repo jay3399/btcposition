@@ -50,6 +50,7 @@ public class VoteRedisServiceImpl implements VoteRedisService {
 
 
     }
+    @Override
     public Integer getValueInRedis(VoteType voteType) {
 
         try {
